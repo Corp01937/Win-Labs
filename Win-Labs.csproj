@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <RootNamespace>Win_Labs</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="resources\Icons\Close_Icon.png" />
+    <None Remove="resources\Icons\Maximize_Icon.png" />
+    <None Remove="resources\Icons\Minimize_Icon.png" />
+    <None Remove="resources\Icons\Win-Labs_Icon.jpg" />
+    <None Remove="resources\jpgs\Folder.jpg" />
+    <None Remove="resources\jpgs\Win-Labs_Icon.jpg" />
+    <None Remove="resources\pngs\Blank Paper.png" />
+    <None Remove="resources\pngs\Help.png" />
+    <None Remove="resources\Toolbar\Blank Paper.png" />
+    <None Remove="resources\Toolbar\Folder.jpg" />
+    <None Remove="resources\Toolbar\Help.png" />
+    <None Remove="resources\Win-Labs_SplashScreen.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="resources\Icons\Close_Icon.png" />
+    <Resource Include="resources\Icons\Maximize_Icon.png" />
+    <Resource Include="resources\Icons\Minimize_Icon.png" />
+    <Resource Include="resources\Icons\Win-Labs_Icon.jpg" />
+    <Resource Include="resources\jpgs\Folder.jpg" />
+    <Resource Include="resources\jpgs\Win-Labs_Icon.jpg" />
+    <Resource Include="resources\pngs\Blank Paper.png" />
+    <Resource Include="resources\pngs\Help.png" />
+    <Resource Include="resources\Toolbar\Blank Paper.png" />
+    <Resource Include="resources\Toolbar\Folder.jpg" />
+    <Resource Include="resources\Toolbar\Help.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="resources\Win-Labs_SplashScreen.jpg" />
+  </ItemGroup>
+
+</Project>

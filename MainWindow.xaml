@@ -1,0 +1,137 @@
+﻿<Window x:Class="Win_Labs.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Win_Labs"
+        mc:Ignorable="d"
+        Title="Win-Labs" Height="450" Width="800"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        ShowInTaskbar="True"
+        BorderBrush="{DynamicResource WindowBackgroundBrush}"
+        BorderThickness=".5"
+        MinHeight="600"
+        MinWidth="800">
+
+    <Window.Resources>
+        <!-- Resources to be used in this "MainWindow"-->
+
+        <LinearGradientBrush x:Key="WindowBackgroundBrush" Opacity="1">
+            <GradientStop Offset="0" Color="Gray"/>
+            <GradientStop Offset="3" Color="Gray"/>
+        </LinearGradientBrush>
+
+    </Window.Resources>
+
+    <Grid>
+
+        <!-- Define rows for vertical layout -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Header row -->
+            <RowDefinition Height="Auto"/>
+            <!-- Toolbar row -->
+            <RowDefinition Height="*" />
+            <!-- Main content row -->
+            <RowDefinition Height="Auto"/>
+            <!-- Footer row -->
+        </Grid.RowDefinitions>
+
+        <!-- Define columns for vertical layout -->
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <!-- Sidebar or inspector -->
+            <ColumnDefinition Width="*" />
+            <!-- Main content area -->
+        </Grid.ColumnDefinitions>
+
+        <!-- Title Bar -->
+        <DockPanel Grid.Column="1" Grid.ColumnSpan="250" LastChildFill="True">
+            <Border Background="DarkGray" Height="30" DockPanel.Dock="Top">
+                <Grid>
+                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" Margin="35,0,-5,0" FontWeight="Bold"/>
+                    <Image Source="pack://application:,,,/Resources/Icons/Win-Labs_Icon.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" />
+                    <Button Background="Transparent" BorderBrush="Transparent" Width="50" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="650,0,0,0" Click="MinimizeButton_Click">
+                        <Button.Content>
+                            <Image Source="pack://application:,,,/Resources/Icons/Minimize_Icon.png"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Background="Transparent" BorderBrush="Transparent" Width="50" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="700,0,0,0" Click="MaximizeButton_Click">
+                        <Button.Content>
+                            <Image Source="pack://application:,,,/Resources/Icons/Maximize_Icon.png"/>
+                        </Button.Content>
+                    </Button>
+                    <Button Background="Transparent" BorderBrush="Transparent" Width="50" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="750,0,0,0" Click="CloseButton_Click">
+                        <Button.Content>
+                            <Image Source="pack://application:,,,/Resources/Icons/Close_Icon.png"/>
+                        </Button.Content>
+                    </Button>
+                </Grid>
+            </Border>
+        </DockPanel>
+
+
+
+        <!-- Master Head Section -->
+        <DockPanel Grid.Row="1" Grid.Column="1" LastChildFill="True" DockPanel.Dock="Top" Height="80">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Content="Play" Width="60" Click="PlayButton_Click"/>
+                <Button Content="Pause" Width="60" Click="PauseButton_Click"/>
+                <Button Content="Stop" Width="60" Click="StopButton_Click"/>
+                <TextBlock x:Name="CurrentTrack" Text="No Track Selected" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Toolbar -->
+        <DockPanel Grid.Row="3" Grid.Column="1" LastChildFill="True" DockPanel.Dock="Top" Height="40">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="Toolbar Button 1" Width="100"/>
+                <Button Content="Toolbar Button 2" Width="100"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Cue List -->
+        <DockPanel Grid.Row="4" Grid.Column="1" DockPanel.Dock="Left" Width="300">
+            <ListView x:Name="CueListView">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Cue Number" Width="80" DisplayMemberBinding="{Binding CueNumber}"/>
+                        <GridViewColumn Header="Duration" Width="100" DisplayMemberBinding="{Binding Duration}"/>
+                        <GridViewColumn Header="Auto Cue" Width="80" DisplayMemberBinding="{Binding AutoCue}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </DockPanel>
+
+        <!-- Inspector -->
+        <DockPanel Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" DockPanel.Dock="Right" Width="300">
+            <StackPanel>
+                <TextBlock Text="Cue Number:"/>
+                <TextBox x:Name="CueNumberTextBox" IsReadOnly="True"/>
+                <TextBlock Text="Duration:"/>
+                <TextBox x:Name="DurationTextBox" IsReadOnly="True"/>
+                <TextBlock Text="Pre Wait:"/>
+                <TextBox x:Name="PreWaitTextBox" IsReadOnly="True"/>
+                <TextBlock Text="Post Wait:"/>
+                <TextBox x:Name="PostWaitTextBox" IsReadOnly="True"/>
+                <TextBlock Text="Auto Follow:"/>
+                <CheckBox x:Name="AutoFollowCheckBox"/>
+                <TextBlock Text="File Name:"/>
+                <TextBox x:Name="FileNameTextBox" IsReadOnly="True"/>
+                <TextBlock Text="Target File:"/>
+                <TextBox x:Name="TargetFileTextBox" IsReadOnly="True"/>
+                <TextBlock Text="Notes:"/>
+                <TextBox x:Name="NotesTextBox" AcceptsReturn="True" Height="100"/>
+            </StackPanel>
+        </DockPanel>
+
+        <!-- Footer -->
+        <DockPanel Grid.Row="100000" LastChildFill="True" DockPanel.Dock="Bottom" Height="40">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Settings" Width="100"/>
+                <ToggleButton x:Name="EditModeToggle" Content="Edit Mode" Width="100" Click="EditModeToggle_Click"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>
