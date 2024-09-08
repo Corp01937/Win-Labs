@@ -7,9 +7,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>resources\Icons\Win-Labs_Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="resources\defaultCue.json" />
     <None Remove="resources\Icons\Close_Icon.png" />
     <None Remove="resources\Icons\Maximize_Icon.png" />
     <None Remove="resources\Icons\Minimize_Icon.png" />
@@ -25,7 +27,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="resources\defaultCue.json">
+      <Generator>MSBuild:Compile</Generator>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="resources\Icons\Win-Labs_Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +55,10 @@
 
   <ItemGroup>
     <SplashScreen Include="resources\Win-Labs_SplashScreen.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="resources\SaveData\" />
   </ItemGroup>
 
 </Project>
