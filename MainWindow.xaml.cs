@@ -44,7 +44,6 @@ namespace Win_Labs
             InitializeCueData();
             DataContext = _currentCue; // Bind the UI to the Cue object
             Console.WriteLine("UI.Binded_To.Cue");
-<<<<<<< HEAD
             // Subscribe to the PropertyChanged event of the current cue
             _currentCue.PropertyChanged += CurrentCue_PropertyChanged;
         }
@@ -62,10 +61,6 @@ namespace Win_Labs
                 }
             }
         }
-=======
-        }
-
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
 
         private void InitializeCueData()
         {

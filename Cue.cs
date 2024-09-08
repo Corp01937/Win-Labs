@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.IO;
-=======
 ﻿using System;
 using System.ComponentModel;
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
 
 namespace Win_Labs
 {
@@ -31,10 +28,7 @@ namespace Win_Labs
                     cueNumber = value;
                     OnPropertyChanged(nameof(CueNumber));
                     Console.WriteLine("PropertyChange.CueNumber");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -49,10 +43,7 @@ namespace Win_Labs
                 {
                     _CueName = value;
                     OnPropertyChanged(nameof(CueName));
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -68,10 +59,7 @@ namespace Win_Labs
                     duration = value;
                     OnPropertyChanged(nameof(Duration));
                     Console.WriteLine("PropertyChange.Duration");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -86,10 +74,7 @@ namespace Win_Labs
                     preWait = value;
                     OnPropertyChanged(nameof(PreWait));
                     Console.WriteLine("PropertyChange.PreWait");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -104,10 +89,7 @@ namespace Win_Labs
                     postWait = value;
                     OnPropertyChanged(nameof(PostWait));
                     Console.WriteLine("PropertyChange.PostWait");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -136,10 +118,7 @@ namespace Win_Labs
                     fileName = value;
                     OnPropertyChanged(nameof(FileName));
                     Console.WriteLine("PropertyChange.FileName");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -154,10 +133,7 @@ namespace Win_Labs
                     targetFile = value;
                     OnPropertyChanged(nameof(TargetFile));
                     Console.WriteLine("PropertyChange.TargetFile");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -172,10 +148,7 @@ namespace Win_Labs
                     notes = value;
                     OnPropertyChanged(nameof(Notes));
                     Console.WriteLine("PropertyChange.Notes");
-<<<<<<< HEAD
                     Save();
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
                 }
             }
         }
@@ -187,8 +160,6 @@ namespace Win_Labs
             Console.WriteLine("PropertyChange.Detected");
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-<<<<<<< HEAD
-
         public void Save() // Change the method to public
         {
             if (string.IsNullOrEmpty(_cueFilePath))
@@ -211,7 +182,5 @@ namespace Win_Labs
         {
             _cueFilePath = filePath;
         }
-=======
->>>>>>> 593531934aef45b6890753e80268784cbfef1aa2
     }
 }
