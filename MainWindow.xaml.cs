@@ -19,6 +19,7 @@ namespace Win_Labs
     {
         private WaveOutEvent? waveOut; //Nullable
         private AudioFileReader? audioFileReader; //Nullabe
+        private bool ShowMode;
 
         public MainWindow()
         {
@@ -94,10 +95,12 @@ namespace Win_Labs
             if (EditModeToggle.IsChecked == true)
             {
                 EditModeToggle.Content = "Show Mode";
+                ShowMode = true;
             }
             else
             {
                 EditModeToggle.Content = "Edit Mode";
+                ShowMode = false;
             }
         }
 
@@ -133,4 +136,3 @@ namespace Win_Labs
         }
     }
 }
-
