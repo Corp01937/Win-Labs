@@ -1,5 +1,4 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using System;
 using System.Windows;
 
 namespace Win_Labs
@@ -7,21 +6,18 @@ namespace Win_Labs
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    /// 
-
-
     public partial class App : Application
     {
-        bool Lauched = false;
+        bool Launched = false;
+
         private void LaunchDebug()
         {
-            Lauched = true;
-            Console.WriteLine("Launching.'App.xaml.cs'");
+            Launched = true;
+            Console.WriteLine("Launching 'App.xaml.cs'");
         }
 
         private void Routing()
         {
-
             Console.WriteLine("Routing.Initialised");
         }
 
@@ -31,23 +27,21 @@ namespace Win_Labs
             MessageBox.Show("An unhandled exception just occurred: " + e.Exception.Message, "Exception Sample", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
+
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             LaunchDebug();
-            Console.WriteLine("Creating.MainWindow");
+            Console.WriteLine("Creating.StartupWindow");
+
             // Create the startup window
-            MainWindow wnd = new MainWindow();
-            // Do stuff here, e.g. to the window
-            Console.WriteLine("Setting.Title");
-            wnd.Title = "Win-Labs";
-            //Initailse Routing
+            StartupWindow startupWindow = new StartupWindow();
+
+            // Initialize Routing
             Routing();
-            // Show the window
-            Console.WriteLine("Showing.Window");
-            wnd.Show();
 
+            // Show the startup window
+            Console.WriteLine("Showing.StartupWindow");
+            startupWindow.Show();
         }
-
-
     }
 }

@@ -12,7 +12,7 @@
         BorderBrush="{DynamicResource WindowBackgroundBrush}"
         BorderThickness="0"
         MinHeight="600" 
-        MinWidth="800">
+        MinWidth="840">
 
     <Window.Resources>
         <!-- Resources to be used in this "MainWindow"-->
@@ -52,23 +52,15 @@
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="250" LastChildFill="True">
             <Border Background="DarkGray" Height="30" DockPanel.Dock="Top">
                 <Grid>
-                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" Margin="35,0,0,0" FontWeight="Bold"/>
-                    <Image Source="pack://application:,,,/Resources/Icons/Win-Labs_Icon.png" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0" />
-                    <Button Background="Transparent" BorderBrush="Transparent" Width="50" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,100,0" Click="MinimizeButton_Click">
-                        <Button.Content>
-                            <Image Source="pack://application:,,,/Resources/Icons/Minimize_Icon.png"/>
-                        </Button.Content>
-                    </Button>
-                    <Button Background="Transparent" BorderBrush="Transparent" Width="50" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,50,0" Click="MaximizeButton_Click">
-                        <Button.Content>
-                            <Image Source="pack://application:,,,/Resources/Icons/Maximize_Icon.png"/>
-                        </Button.Content>
-                    </Button>
-                    <Button Background="Transparent" BorderBrush="Transparent" Width="50" Height="30" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,0,0" Click="CloseButton_Click">
-                        <Button.Content>
-                            <Image Source="pack://application:,,,/Resources/Icons/Close_Icon.png"/>
-                        </Button.Content>
-                    </Button>
+                    <!-- Add Menu to Title Bar -->
+                    <Menu DockPanel.Dock="Left">
+                        <MenuItem Header="File">
+                            <MenuItem Header="Save" Click="SaveMenuItem_Click"/>
+                            <MenuItem Header="Export" Click="ExportMenuItem_Click"/>
+                            <MenuItem Header="Import" Click="ImportMenuItem_Click"/>
+                        </MenuItem>
+                    </Menu>
+                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" Margin="395,0,0,0" FontWeight="Bold"/>
                 </Grid>
             </Border>
         </DockPanel>
@@ -95,24 +87,38 @@
 
         <!-- Cue List -->
         <DockPanel Grid.Row="3" Grid.Column="0" LastChildFill="True" DockPanel.Dock="Left">
-            <ListView x:Name="CueListView">
+            <ListView x:Name="CueListView" SelectionChanged="CueListView_SelectionChanged">
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Create New Cue" Click="CreateNewCue_Click"/>
+                        <MenuItem Header="Delete Selected Cue" Click="DeleteSelectedCue_Click"/>
+                    </ContextMenu>
+                </ListView.ContextMenu>
                 <ListView.View>
                     <GridView SelectiveScrollingGrid.SelectiveScrollingOrientation="Both">
                         <GridViewColumn Header="Cue #" Width="50" DisplayMemberBinding="{Binding CueNumber}"/>
-                        <GridViewColumn Header="Name" Width="450" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="CueName" Width="450" DisplayMemberBinding="{Binding CueName}"/>
                         <GridViewColumn Header="Duration" Width="100" DisplayMemberBinding="{Binding Duration}"/>
                         <GridViewColumn Header="PreWait" Width="75" DisplayMemberBinding="{Binding PreWait}"/>
                         <GridViewColumn Header="PostWait" Width="75" DisplayMemberBinding="{Binding PostWait}"/>
-                        <GridViewColumn Header="Auto Cue" Width="80" DisplayMemberBinding="{Binding AutoCue}"/>
+                        <GridViewColumn Header="Auto Follow" Width="80">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding AutoFollow}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
+
         </DockPanel>
+
 
         <!-- Inspector -->
         <StackPanel Grid.Row="4" Grid.Column="0">
             <Grid ShowGridLines="False">
-                <!--Define rows for horizontal Layout-->
+                <!-- Define rows for horizontal Layout -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="25"/>
@@ -122,31 +128,60 @@
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="25"/>
                     <RowDefinition Height="25"/>
+                    <RowDefinition Height="25"/>
                 </Grid.RowDefinitions>
-                
+
                 <!-- Define columns for vertical layout -->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="75"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Text="Cue Number:"/>
-                <TextBox Grid.Column="1" Grid.Row="0" x:Name="CueNumberTextBox" IsReadOnly="False"/>
-                <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Text="Duration:"/>
-                <TextBox Grid.Column="1" Grid.Row="1" x:Name="DurationTextBox" IsReadOnly="False"/>
-                <TextBlock Grid.Column="0" Grid.Row="2"  VerticalAlignment="Center" Text="Pre Wait:"/>
-                <TextBox Grid.Column="1" Grid.Row="2" x:Name="PreWaitTextBox" IsReadOnly="False"/>
-                <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Post Wait:"/>
-                <TextBox Grid.Column="1" Grid.Row="3" x:Name="PostWaitTextBox" IsReadOnly="False"/>
-                <TextBlock Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Text="Auto Follow:"/>
-                <CheckBox Grid.Column="1" Grid.Row="4" x:Name="AutoFollowCheckBox" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
-                <TextBlock Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" Text="File Name:"/>
-                <TextBox Grid.Column="1" Grid.Row="5" x:Name="FileNameTextBox" IsReadOnly="False"/>
-                <TextBlock Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" Text="Target False:"/>
-                <TextBox Grid.Column="1" Grid.Row="6" x:Name="TargetFileTextBox" IsReadOnly="False"/>
-                <TextBlock Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" Text="Notes:"/>
-                <TextBox Grid.Column="1" Grid.Row="7" x:Name="NotesTextBox" AcceptsReturn="True" Height="Auto"/>
+
+                <!-- Cue Name -->
+                <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Text="Cue Name:"/>
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding CueName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+
+                <!-- Cue Number -->
+                <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Text="Cue Number:"/>
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding CueNumber, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+
+                <!-- Duration -->
+                <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Text="Duration:"/>
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+
+                <!-- Pre Wait -->
+                <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Pre Wait:"/>
+                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding PreWait, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+
+                <!-- Post Wait -->
+                <TextBlock Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Text="Post Wait:"/>
+                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding PostWait, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+
+                <!-- Auto Follow -->
+                <TextBlock Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" Text="Auto Follow:"/>
+                <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding AutoFollow, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+
+                <!-- File Name -->
+                <TextBlock Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" Text="File Name:"/>
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+
+                <!-- Target File -->
+                <TextBlock Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" Text="Target File:"/>
+                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding TargetFile, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                
+                <!-- Button with a folder icon -->
+                <Button Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right" Click="SelectTargetFile_Click">
+                    <Button.Content>
+                        <Image Source="pack://application:,,,/Resources/jpgs/Folder.jpg" Width="16" Height="16"/>
+                    </Button.Content>
+                </Button>
+
+                <!-- Notes -->
+                <TextBlock Grid.Column="0" Grid.Row="8" VerticalAlignment="Center" Text="Notes:"/>
+                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="Auto"/>
             </Grid>
         </StackPanel>
+
 
         <!-- Footer -->
         <TextBlock Grid.Row="5" Grid.Column="0" Text="GitHub: https://github.com/Corp01937/Win-Labs" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
