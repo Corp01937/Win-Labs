@@ -9,29 +9,39 @@ namespace Win_Labs
     public partial class App : Application
     {
         bool Launched = false;
+        public string GetCurrentTime()
+        {
+            return DateTime.Now.ToString("yy-MM-dd HH:mm:ss");
+        }
 
+        public void Log(string message)
+        {
+            string timestamp = GetCurrentTime();
+            Console.WriteLine($"[{timestamp}] Message: {message}");
+        }
         private void LaunchDebug()
         {
             Launched = true;
-            Console.WriteLine("Launching 'App.xaml.cs'");
+
         }
 
         private void Routing()
         {
-            Console.WriteLine("Routing.Initialised");
+            Log("Routing.Initialised");
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            Console.WriteLine("Exception.Caught");
+            Log("Exception.Caught");
             MessageBox.Show("An unhandled exception just occurred: " + e.Exception.Message, "Exception Sample", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            Log("Program.Start");
             LaunchDebug();
-            Console.WriteLine("Creating.StartupWindow");
+            Log("Creating.StartupWindow");
 
             // Create the startup window
             StartupWindow startupWindow = new StartupWindow();
@@ -40,7 +50,7 @@ namespace Win_Labs
             Routing();
 
             // Show the startup window
-            Console.WriteLine("Showing.StartupWindow");
+            Log("Showing.StartupWindow");
             startupWindow.Show();
         }
     }

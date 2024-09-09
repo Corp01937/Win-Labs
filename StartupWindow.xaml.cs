@@ -7,6 +7,16 @@ namespace Win_Labs
 {
     public partial class StartupWindow : Window
     {
+        public string GetCurrentTime()
+        {
+            return DateTime.Now.ToString("yy-MM-dd HH:mm:ss");
+        }
+
+        public void Log(string message)
+        {
+            string timestamp = GetCurrentTime();
+            Console.WriteLine($"[{timestamp}] Message: {message}");
+        }
         public StartupWindow()
         {
             InitializeComponent();
@@ -18,7 +28,7 @@ namespace Win_Labs
             if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 string playlistFolderPath = folderDialog.SelectedPath;
-                Console.WriteLine("Selected Path: "+playlistFolderPath);
+                Log("Selected Path: "+playlistFolderPath);
                 // Open the MainWindow with the selected playlist folder
                 var mainWindow = new MainWindow(playlistFolderPath);
                 mainWindow.Show();
@@ -32,9 +42,12 @@ namespace Win_Labs
             if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 string playlistFolderPath = folderDialog.SelectedPath;
-                Console.WriteLine("Selected Path: " + playlistFolderPath);
+                Log("Selected Path: " + playlistFolderPath);
                 // Open the MainWindow with the selected playlist folder
                 var mainWindow = new MainWindow(playlistFolderPath);
+                Log("MainWindow.Created");
+                CueManager.startUpFinished = true;
+                Log("StartUp Finished");
                 mainWindow.Show();
                 this.Close();
             }

@@ -36,7 +36,7 @@
             <!-- Toolbar row:2 -->
             <RowDefinition Height="*" />
             <!-- CueList row:3 -->
-            <RowDefinition Height="200"/>
+            <RowDefinition Height="225"/>
             <!-- Inspector row:4 -->
             <RowDefinition Height="30"/>
             <!-- Footer row:5 -->
@@ -80,8 +80,8 @@
         <!-- Toolbar -->
         <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="True" DockPanel.Dock="Top" Height="40">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button Content="Button 1" Width="50" Height="50"/>
-                <Button Content="Button 2" Width="50" Height="50"/>
+                <Button Name="RefreshButton" Content="Refresh" Click="RefreshButton_Click"/>
+                <Button Content="New Cue" Width="50" Height="50" Click="NewCueButton_Click"/>
             </StackPanel>
         </DockPanel>
 
@@ -163,11 +163,11 @@
 
                 <!-- File Name -->
                 <TextBlock Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" Text="File Name:"/>
-                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
 
                 <!-- Target File -->
                 <TextBlock Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" Text="Target File:"/>
-                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding TargetFile, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding TargetFile, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
                 
                 <!-- Button with a folder icon -->
                 <Button Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right" Click="SelectTargetFile_Click">
