@@ -3,22 +3,12 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
+using Win_Labs;
 
 namespace Win_Labs
 {
     public class Cue : INotifyPropertyChanged
     {
-        public string GetCurrentTime()
-        {
-            return DateTime.Now.ToString("yy-MM-dd HH:mm:ss");
-        }
-
-        public void Log(string message)
-        {
-            string timestamp = GetCurrentTime();
-            Console.WriteLine($"[{timestamp}] Message: {message}");
-        }
-
         private float cueNumber;
         private string _cueFilePath;
         private string duration;
@@ -34,6 +24,7 @@ namespace Win_Labs
     // Constructor with a parameter for playlistFolderPath
     public Cue(string playlistFolderPath)
     {
+        
         PlaylistFolderPath = playlistFolderPath;
         }
 
@@ -50,7 +41,8 @@ namespace Win_Labs
             {
                 if (cueNumber != value)
                 {
-                    Log($"Attempting to set CueNumber to {value}");
+                    
+                    Log.log($"Attempting to set CueNumber to {value}");
                     bool shouldProceed = CheckForDuplicateCueFile(value);
 
                     if (shouldProceed ==true)
@@ -58,11 +50,11 @@ namespace Win_Labs
                         RenameCueFile(cueNumber, value);
                         cueNumber = value;
                         OnPropertyChanged(nameof(CueNumber));
-                        Log($"CueNumber set to {value}");
+                        Log.log($"CueNumber set to {value}");
                     }
                     else
                     {
-                        Log($"User chose not to replace the existing cue file.");
+                        Log.log($"User chose not to replace the existing cue file.");
                     }
                 }
             }
@@ -77,7 +69,7 @@ namespace Win_Labs
             {
                 if (_CueName != value)
                 {
-                    Log("PropertyChange.CueName");
+                    Log.log("PropertyChange.CueName");
                     _CueName = value;
                     OnPropertyChanged(nameof(CueName));
 
@@ -92,7 +84,7 @@ namespace Win_Labs
             {
                 if (duration != value)
                 {
-                    Log("PropertyChange.Duration");
+                    Log.log("PropertyChange.Duration");
                     duration = value;
                     OnPropertyChanged(nameof(Duration));
 
@@ -107,7 +99,7 @@ namespace Win_Labs
             {
                 if (preWait != value)
                 {
-                    Log("PropertyChange.PreWait");
+                    Log.log("PropertyChange.PreWait");
                     preWait = value;
                     OnPropertyChanged(nameof(PreWait));
 
@@ -122,7 +114,7 @@ namespace Win_Labs
             {
                 if (postWait != value)
                 {
-                    Log("PropertyChange.PostWait");
+                    Log.log("PropertyChange.PostWait");
                     postWait = value;
                     OnPropertyChanged(nameof(PostWait));
 
@@ -137,7 +129,7 @@ namespace Win_Labs
             {
                 if (autoFollow != value)
                 {
-                    Log("PropertyChange.AutoFollow");
+                    Log.log("PropertyChange.AutoFollow");
                     autoFollow = value;
                     OnPropertyChanged(nameof(AutoFollow));
 
@@ -152,7 +144,7 @@ namespace Win_Labs
             {
                 if (fileName != value)
                 {
-                    Log("PropertyChange.FileName");
+                    Log.log("PropertyChange.FileName");
                     fileName = value;
                     OnPropertyChanged(nameof(FileName));
 
@@ -167,7 +159,7 @@ namespace Win_Labs
             {
                 if (targetFile != value)
                 {
-                    Log("PropertyChange.TargetFile");
+                    Log.log("PropertyChange.TargetFile");
                     targetFile = value;
                     OnPropertyChanged(nameof(TargetFile));
 
@@ -182,7 +174,7 @@ namespace Win_Labs
             {
                 if (notes != value)
                 {
-                    Log("PropertyChange.Notes");
+                    Log.log("PropertyChange.Notes");
                     notes = value;
                     OnPropertyChanged(nameof(Notes));
 
@@ -196,7 +188,7 @@ namespace Win_Labs
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            Log("Save.Called");
+            Log.log("Save.Called");
             Save();
             
         }
@@ -206,13 +198,13 @@ namespace Win_Labs
             if (string.IsNullOrEmpty(PlaylistFolderPath)==false)
             {
                 CueManager.SaveCueToFile(this, PlaylistFolderPath);
-                Log("Saved");
+                Log.log("Saved");
             }
             else
             {
-                Log("Not Saved");
-                Log("String.IsNullOrEmpty(PlaylistFolderPath)"+ " = True");
-                Log("PlayslistFolderPath = "+ PlaylistFolderPath);
+                Log.log("Not Saved");
+                Log.log("String.IsNullOrEmpty(PlaylistFolderPath)"+ " = True");
+                Log.log("PlayslistFolderPath = "+ PlaylistFolderPath);
             }
         }
 
@@ -220,7 +212,7 @@ namespace Win_Labs
         {
             if(CueManager.startUpFinished == false)
             {
-                Log("In startup mode duplicate check skiped.");
+                Log.log("In startup mode duplicate check skiped.");
                 return true;
             }
             // Construct the new file path for the cue
@@ -230,17 +222,17 @@ namespace Win_Labs
             // Check if the new file already exists
             if (File.Exists(newFilePath)==true)
             {
-                Log("Duplicate file found: "+newFilePath);
+                Log.log("Duplicate file found: "+newFilePath);
                 var result = MessageBox.Show(
                     $"A cue with the number {newCueNumber} already exists. Do you want to replace it?",
                     "File Already Exists",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning
                 );
-                if (result == MessageBoxResult.Yes) { Log("UserInput.Yes"); } else { Log("UserInput.No"); }
+                if (result == MessageBoxResult.Yes) { Log.log("UserInput.Yes"); } else { Log.log("UserInput.No"); }
                 return result == MessageBoxResult.Yes; // If user confirms, proceed
             }
-            Log("No duplicate found, proceed");
+            Log.log("No duplicate found, proceed");
             return true;
         }
 
@@ -297,7 +289,7 @@ namespace Win_Labs
         {
             if(CueManager.startUpFinished == false)
             {
-                Log("In startup mode Rename skiped.");
+                Log.log("In startup mode Rename skiped.");
                 return;
             }
             // Construct file paths
@@ -308,23 +300,23 @@ namespace Win_Labs
             // Verify the PlaylistFolderPath
             if (!Directory.Exists(PlaylistFolderPath))
             {
-                Log($"Playlist folder does not exist: {PlaylistFolderPath}");
+                Log.log($"Playlist folder does not exist: {PlaylistFolderPath}");
                 return;
             }
 
             try
             {
-                Log($"Attempting to rename file from {MaskFilePath(oldFilePath)} to {MaskFilePath(newFilePath)}");
+                Log.log($"Attempting to rename file from {MaskFilePath(oldFilePath)} to {MaskFilePath(newFilePath)}");
 
                 // Check if the old file exists
                 if (File.Exists(oldFilePath))
                 {
                     // Rename the file
                     File.Move(oldFilePath, newFilePath, true);
-                    Log("New file made");
+                    Log.log("New file made");
                     // Delete old file
                     File.Delete(oldFilePath);
-                    Log("Old file delted");
+                    Log.log("Old file delted");
                     // Update _cueFilePath to the new file path
                     _cueFilePath = newFilePath;
 
@@ -332,19 +324,19 @@ namespace Win_Labs
                     string maskedOldFilePath = MaskPathPart(oldFilePath, 40); // Adjust max visible length as needed
                     string maskedNewFilePath = MaskPathPart(newFilePath, 40); // Adjust max visible length as needed
                     // Log success
-                    Log($"Cue file renamed successfully from {maskedOldFilePath} to {maskedNewFilePath}");
-                    Log("Rename.Sucess");
+                    Log.log($"Cue file renamed successfully from {maskedOldFilePath} to {maskedNewFilePath}");
+                    Log.log("Rename.Sucess");
                 }
                 else
                 {
                     // Log if the old file is not found
-                    Log($"Old cue file not found: {MaskPathPart(oldFilePath, 40)}");
+                    Log.log($"Old cue file not found: {MaskPathPart(oldFilePath, 40)}");
                 }
             }
             catch (Exception ex)
             {
                 // Log any exceptions that occur
-                Log($"Error renaming file from {oldFilePath} to {newFilePath}: {ex.Message}");
+                Log.log($"Error renaming file from {oldFilePath} to {newFilePath}: {ex.Message}");
             }
         }
 

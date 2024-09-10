@@ -11,16 +11,6 @@ namespace Win_Labs
     {
         public static bool startUpFinished;
         public static bool validJsonFileInPlaylist;
-        public static string GetCurrentTime()
-        {
-            return DateTime.Now.ToString("yy-MM-dd HH:mm:ss");
-        }
-
-        public static void Log(string message)
-        {
-            string timestamp = GetCurrentTime();
-            Console.WriteLine($"[{timestamp}] Message: {message}");
-        }
 
         private static string MaskFilePath(string filePath)
         {
@@ -76,13 +66,13 @@ namespace Win_Labs
             {
                 if (cue == null)
                 {
-                    Log("Cue is null. Cannot save.");
+                    Log.log("Cue is null. Cannot save.");
                     return;
                 }
 
                 if (string.IsNullOrEmpty(playlistFolderPath))
                 {
-                    Log("Playlist folder path is not set.");
+                    Log.log("Playlist folder path is not set.");
                     return;
                 }
 
@@ -97,11 +87,11 @@ namespace Win_Labs
                 string json = JsonConvert.SerializeObject(cue, Formatting.Indented);
                 File.WriteAllText(filePath, json);
 
-                Log($"Cue {cue.CueNumber} saved successfully to {MaskFilePath(filePath)}");
+                Log.log($"Cue {cue.CueNumber} saved successfully to {MaskFilePath(filePath)}");
             }
             catch (Exception ex)
             {
-                Log($"Error saving cue {cue.CueNumber}: {ex.Message}");
+                Log.log($"Error saving cue {cue.CueNumber}: {ex.Message}");
             }
         }
 
@@ -110,7 +100,7 @@ namespace Win_Labs
         {
             if (cues == null || string.IsNullOrEmpty(playlistFolderPath))
             {
-                Log("Cues collection or playlist folder path is not set.");
+                Log.log("Cues collection or playlist folder path is not set.");
                 return;
             }
 
@@ -118,7 +108,7 @@ namespace Win_Labs
             {
                 SaveCueToFile(cue, playlistFolderPath);
             }
-            Log("All cues saved.");
+            Log.log("All cues saved.");
         }
 
         public static bool IsValidJsonFileInPlaylist(string playlistFolderPath)
@@ -126,13 +116,13 @@ namespace Win_Labs
             // Check if the playlist folder path is valid
             if (string.IsNullOrEmpty(playlistFolderPath) || !Directory.Exists(playlistFolderPath))
             {
-                Log("Invalid playlist folder path.");
+                Log.log("Invalid playlist folder path.");
                 return false;
             }
 
             // Get all JSON files in the playlist folder
             string[] jsonFiles = Directory.GetFiles(playlistFolderPath, "*.json");
-            Log($"Found {jsonFiles.Length} JSON files.");
+            Log.log($"Found {jsonFiles.Length} JSON files.");
 
             foreach (var file in jsonFiles)
             {
@@ -147,34 +137,34 @@ namespace Win_Labs
                     // Check if deserialization returned a non-null Cue object
                     if (cue != null)
                     {
-                        Log($"Valid JSON file found: {file}");
+                        Log.log($"Valid JSON file found: {file}");
                         validJsonFileInPlaylist = true;
                         return true; // A valid JSON file was found
                     }
                     else
                     {
-                        Log($"Deserialization returned null for file: {file}");
+                        Log.log($"Deserialization returned null for file: {file}");
                     }
                 }
                 catch (JsonException jsonEx)
                 {
-                    Log($"Error deserializing JSON from file {file}: {jsonEx.Message}");
+                    Log.log($"Error deserializing JSON from file {file}: {jsonEx.Message}");
                     // Optionally, continue checking other files
                 }
                 catch (IOException ioEx)
                 {
-                    Log($"I/O error while reading file {file}: {ioEx.Message}");
+                    Log.log($"I/O error while reading file {file}: {ioEx.Message}");
                     // Optionally, continue checking other files
                 }
                 catch (Exception ex)
                 {
-                    Log($"Unexpected error while processing file {file}: {ex.Message}");
+                    Log.log($"Unexpected error while processing file {file}: {ex.Message}");
                     // Optionally, continue checking other files
                 }
             }
 
             // No valid JSON file found
-            Log("No valid JSON file found in the playlist.");
+            Log.log("No valid JSON file found in the playlist.");
             validJsonFileInPlaylist = false;
             return false;
         }
@@ -187,11 +177,11 @@ namespace Win_Labs
             var observableCollectionCue = new ObservableCollection<Cue>();
 
             // Log the start of the loading process
-            Log($"Starting to load cues from playlist folder: {playlistFolderPath}");
+            Log.log($"Starting to load cues from playlist folder: {playlistFolderPath}");
 
             if (string.IsNullOrEmpty(playlistFolderPath))
             {
-                Log("Playlist folder path is not set.");
+                Log.log("Playlist folder path is not set.");
                 return observableCollectionCue;
             }
 
@@ -200,52 +190,52 @@ namespace Win_Labs
             try
             {
                 cueFilesArray = Directory.GetFiles(playlistFolderPath, "*.json");
-                Log($"Found {cueFilesArray.Length} cue files.");
+                Log.log($"Found {cueFilesArray.Length} cue files.");
             }
             catch (Exception ex)
             {
-                Log($"Error accessing playlist folder: {ex.Message}");
+                Log.log($"Error accessing playlist folder: {ex.Message}");
                 MessageBox.Show($"Error accessing playlist folder: {ex.Message}", "Folder Access Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return observableCollectionCue;
             }
 
             foreach (var file in cueFilesArray)
             {
-                Log($"Processing file: {file}");
+                Log.log($"Processing file: {file}");
                 try
                 {
                     string jsonContent = File.ReadAllText(file);
-                    Log($"File content read successfully. Size: {jsonContent.Length} characters.");
+                    Log.log($"File content read successfully. Size: {jsonContent.Length} characters.");
 
                     Cue deserializedJson = JsonConvert.DeserializeObject<Cue>(jsonContent);
 
                     if (deserializedJson != null)
                     {
                         observableCollectionCue.Add(deserializedJson);
-                        Log($"Cue Loaded");
+                        Log.log($"Cue Loaded");
                     }
                     else
                     {
-                        Log($"Deserialization returned null for file: {file}");
+                        Log.log($"Deserialization returned null for file: {file}");
                     }
                 }
                 catch (JsonException jsonEx)
                 {
-                    Log($"Error deserializing JSON from file {file}: {jsonEx.Message}");
+                    Log.log($"Error deserializing JSON from file {file}: {jsonEx.Message}");
                     MessageBox.Show($"Error deserializing JSON from file {file}: {jsonEx.Message}", "Deserialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (IOException ioEx)
                 {
-                    Log($"I/O error while reading file {file}: {ioEx.Message}");
+                    Log.log($"I/O error while reading file {file}: {ioEx.Message}");
                     MessageBox.Show($"I/O error while reading file {file}: {ioEx.Message}", "File Read Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {
-                    Log($"Unexpected error while processing file {file}: {ex.Message}");
+                    Log.log($"Unexpected error while processing file {file}: {ex.Message}");
                     MessageBox.Show($"Unexpected error while processing file {file}: {ex.Message}", "Unexpected Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            Log("Finished loading cues.");
+            Log.log("Finished loading cues.");
             return observableCollectionCue;
         }
 
