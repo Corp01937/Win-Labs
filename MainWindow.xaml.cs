@@ -47,6 +47,8 @@ namespace Win_Labs
 
         private void RefreshCues()
         {
+
+            Log.log("_____________________________________________________________________________________________________________________ REFRESH BROKEN ___________________________________________________________________________________________________");
             string cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{CueNumberSelected}.json");
             Log.log("RefreshCues.Called");
             try
