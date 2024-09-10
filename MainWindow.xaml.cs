@@ -462,10 +462,20 @@ namespace Win_Labs
             CueManager.SaveAllCues(_cues, _playlistFolderPath);
         }
 
-        private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
+        private void ExportMenuItem_Click(object sender, RoutedEventArgs e, Export export)
         {
             Log("Export.Clicked");
-            // Implement export logic here.
+            //export logic
+            Log("Started Dialog");
+            var folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                Log("Dialog.Opened");
+                string playlistExportFolderPath = folderDialog.SelectedPath;
+                Log("Selected Export Path: " + playlistExportFolderPath);
+                export.createZIP(playlistExportFolderPath);
+                this.Close(); // Close Dialog
+            }
         }
 
         private void ImportMenuItem_Click(object sender, RoutedEventArgs e)
