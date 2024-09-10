@@ -12,7 +12,8 @@
         BorderBrush="{DynamicResource WindowBackgroundBrush}"
         BorderThickness="0"
         MinHeight="600" 
-        MinWidth="840">
+        MinWidth="840"
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <!-- Resources to be used in this "MainWindow"-->
@@ -54,6 +55,10 @@
                 <Grid>
                     <!-- Add Menu to Title Bar -->
                     <Menu DockPanel.Dock="Left">
+                        <MenuItem Header="Window">
+                            <MenuItem Header="Close" Click="CloseMenuItem_Click"/>
+                            <MenuItem Header="other"/>
+                        </MenuItem>
                         <MenuItem Header="File">
                             <MenuItem Header="Save" Click="SaveMenuItem_Click"/>
                             <MenuItem Header="Export" Click="ExportMenuItem_Click"/>

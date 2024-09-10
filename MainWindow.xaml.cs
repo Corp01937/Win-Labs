@@ -458,6 +458,7 @@ namespace Win_Labs
 
         private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            Log("Save.Clicked");
             CueManager.SaveAllCues(_cues, _playlistFolderPath);
         }
 
@@ -471,6 +472,15 @@ namespace Win_Labs
         {
             Log("Import.Clicked");
             // Implement import logic here.
+        }
+
+        private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log("Close.Clicked");
+            Log("Starting Close Protocol");
+            SaveAllCues();
+            Log("Closing.Window");
+            this.Close();
         }
 
         private void SelectTargetFile_Click(object sender, RoutedEventArgs e)
@@ -532,6 +542,11 @@ namespace Win_Labs
 
             // Save the new cue
             CueManager.SaveCueToFile(newCue, _playlistFolderPath);
+        }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

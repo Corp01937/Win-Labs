@@ -1,9 +1,10 @@
 ﻿<Window x:Class="Win_Labs.StartupWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Startup Menu" Height="200" Width="400">
+        Title="Startup Menu" Height="200" Width="400"
+        WindowStartupLocation="CenterScreen">
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1">
             <Button Content="Create New Playlist" Click="CreateNewPlaylist_Click" Width="150" Height="30"/>
             <Button Content="Open Existing Playlist" Click="OpenExistingPlaylist_Click" Width="150" Height="30"/>
         </StackPanel>
