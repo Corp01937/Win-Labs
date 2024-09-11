@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Security.Permissions;
 using System.Windows;
 using Win_Labs;
 
@@ -19,13 +20,18 @@ namespace Win_Labs
         private string targetFile;
         private string notes;
         private string _CueName;
-        public string PlaylistFolderPath { get; set; }
+        private bool renaming;
+        public string PlaylistFolderPath { // setting playlist folder path for use in Cue class
+            get;
+            set;
 
-    // Constructor with a parameter for playlistFolderPath
-    public Cue(string playlistFolderPath)
-    {
-        
-        PlaylistFolderPath = playlistFolderPath;
+        }
+
+        // Constructor with a parameter for playlistFolderPath
+        public Cue(string playlistFolderPath)
+        {
+            PlaylistFolderPath = StartupWindow.playlistFolderPath;
+
         }
 
         // Default constructor
@@ -41,10 +47,10 @@ namespace Win_Labs
             {
                 if (cueNumber != value)
                 {
-                    
+                    Log.log("PropertyChange.CueNumber");
                     Log.log($"Attempting to set CueNumber to {value}");
                     bool shouldProceed = CheckForDuplicateCueFile(value);
-
+                    
                     if (shouldProceed ==true)
                     {
                         RenameCueFile(cueNumber, value);
@@ -142,10 +148,10 @@ namespace Win_Labs
             get => fileName;
             set
             {
-                if (fileName != value)
+                if (fileName != targetFile)
                 {
                     Log.log("PropertyChange.FileName");
-                    fileName = value;
+                    fileName = targetFile;
                     OnPropertyChanged(nameof(FileName));
 
                 }
@@ -195,6 +201,9 @@ namespace Win_Labs
 
         public void Save()
         {
+            if(renaming== true) { return; }
+            PlaylistFolderPath = StartupWindow.playlistFolderPath; // is called here again as this method is called before the setter.
+
             if (string.IsNullOrEmpty(PlaylistFolderPath)==false)
             {
                 CueManager.SaveCueToFile(this, PlaylistFolderPath);
@@ -292,6 +301,7 @@ namespace Win_Labs
                 Log.log("In startup mode Rename skiped.");
                 return;
             }
+            renaming = true;
             // Construct file paths
             string oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
             string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
@@ -330,7 +340,7 @@ namespace Win_Labs
                 else
                 {
                     // Log if the old file is not found
-                    Log.log($"Old cue file not found: {MaskPathPart(oldFilePath, 40)}");
+                    Log.log($"Old cue file not found: {MaskPathPart(oldFilePath, 40)}", Log.LogLevel.Error);
                 }
             }
             catch (Exception ex)
@@ -338,6 +348,7 @@ namespace Win_Labs
                 // Log any exceptions that occur
                 Log.log($"Error renaming file from {oldFilePath} to {newFilePath}: {ex.Message}");
             }
+            renaming = false;
         }
 
 

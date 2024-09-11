@@ -66,13 +66,13 @@ namespace Win_Labs
             {
                 if (cue == null)
                 {
-                    Log.log("Cue is null. Cannot save.");
+                    Log.log("Cue is null. Cannot save.", Log.LogLevel.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(playlistFolderPath))
                 {
-                    Log.log("Playlist folder path is not set.");
+                    Log.log("Playlist folder path is not set.", Log.LogLevel.Warning);
                     return;
                 }
 
@@ -100,7 +100,7 @@ namespace Win_Labs
         {
             if (cues == null || string.IsNullOrEmpty(playlistFolderPath))
             {
-                Log.log("Cues collection or playlist folder path is not set.");
+                Log.log("Cues collection or playlist folder path is not set.", Log.LogLevel.Warning);
                 return;
             }
 
@@ -116,7 +116,7 @@ namespace Win_Labs
             // Check if the playlist folder path is valid
             if (string.IsNullOrEmpty(playlistFolderPath) || !Directory.Exists(playlistFolderPath))
             {
-                Log.log("Invalid playlist folder path.");
+                Log.log("Invalid playlist folder path.", Log.LogLevel.Warning);
                 return false;
             }
 
@@ -143,7 +143,7 @@ namespace Win_Labs
                     }
                     else
                     {
-                        Log.log($"Deserialization returned null for file: {file}");
+                        Log.log($"Deserialization returned null for file: {file}", Log.LogLevel.Warning);
                     }
                 }
                 catch (JsonException jsonEx)
@@ -164,7 +164,7 @@ namespace Win_Labs
             }
 
             // No valid JSON file found
-            Log.log("No valid JSON file found in the playlist.");
+            Log.log("No valid JSON file found in the playlist.", Log.LogLevel.Warning);
             validJsonFileInPlaylist = false;
             return false;
         }
@@ -173,7 +173,6 @@ namespace Win_Labs
         // Method to load cues from a folder
         public static ObservableCollection<Cue> LoadCues(string playlistFolderPath)
         {
-
             var observableCollectionCue = new ObservableCollection<Cue>();
 
             // Log the start of the loading process
@@ -181,13 +180,13 @@ namespace Win_Labs
 
             if (string.IsNullOrEmpty(playlistFolderPath))
             {
-                Log.log("Playlist folder path is not set.");
+                Log.log("Playlist folder path is not set.", Log.LogLevel.Warning);
                 return observableCollectionCue;
             }
 
             // Load all cue files from the playlist folder
-            string[] cueFilesArray;
-            try
+            string[] cueFilesArray; //Initializeses empty array
+            try // Sets cueFileArray
             {
                 cueFilesArray = Directory.GetFiles(playlistFolderPath, "*.json");
                 Log.log($"Found {cueFilesArray.Length} cue files.");
@@ -199,24 +198,26 @@ namespace Win_Labs
                 return observableCollectionCue;
             }
 
-            foreach (var file in cueFilesArray)
+            foreach (var file in cueFilesArray) // For each file in array
             {
                 Log.log($"Processing file: {file}");
                 try
                 {
-                    string jsonContent = File.ReadAllText(file);
+                    string jsonContent = File.ReadAllText(file); // reading file content
                     Log.log($"File content read successfully. Size: {jsonContent.Length} characters.");
 
-                    Cue deserializedJson = JsonConvert.DeserializeObject<Cue>(jsonContent);
+                    Cue deserializedJson = JsonConvert.DeserializeObject<Cue>(jsonContent); // uses cue constructor to create deserialized json
 
                     if (deserializedJson != null)
                     {
-                        observableCollectionCue.Add(deserializedJson);
+                        observableCollectionCue.Add(deserializedJson); // updates collection
                         Log.log($"Cue Loaded");
+                        Log.log("Finished loading cues.");
                     }
-                    else
+                    else // for cases with an empty file
                     {
-                        Log.log($"Deserialization returned null for file: {file}");
+                        Log.log($"Deserialization returned null for file: {file}", Log.LogLevel.Warning);
+                                    Log.log("Finished loading cues.");
                     }
                 }
                 catch (JsonException jsonEx)
@@ -235,7 +236,7 @@ namespace Win_Labs
                     MessageBox.Show($"Unexpected error while processing file {file}: {ex.Message}", "Unexpected Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            Log.log("Finished loading cues.");
+
             return observableCollectionCue;
         }
 

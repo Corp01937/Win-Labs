@@ -8,7 +8,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using Win_Labs;
 
 namespace Win_Labs
 {
@@ -21,7 +20,7 @@ namespace Win_Labs
 
         private WaveOutEvent? waveOut; // Nullable
         private AudioFileReader? audioFileReader; // Nullable
-        public static List<Cue> _cueList = new List<Cue>();
+        public static List<Cue> _cueList = [];
         private string DefaultCueFilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\defaultCue.json");
         private Cue _currentCue = new Cue();
         private bool ShowMode;
@@ -35,50 +34,13 @@ namespace Win_Labs
             _playlistFolderPath = playlistFolderPath;
             Log.log($"Playlist Folder Path: {_playlistFolderPath}");
             CueListView.ItemsSource = _cues;
+
             LoadCues();
-            Log.log("Cues.Loaded");
             InitializeCueData();
             Log.log("CueData.Initialized");
             DataContext = _currentCue;
             Log.log("UI.Binded_To.Cue");
             _currentCue.PropertyChanged += CurrentCue_PropertyChanged;
-            RefreshCues();
-        }
-
-        private void RefreshCues()
-        {
-
-            Log.log("_____________________________________________________________________________________________________________________ REFRESH BROKEN ___________________________________________________________________________________________________");
-            string cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{CueNumberSelected}.json");
-            Log.log("RefreshCues.Called");
-            try
-            {
-                if (CueListView.SelectedItem is Cue selectedCue)//Save selected cue
-                {
-                    CueManager.SaveCueToFile(selectedCue, _playlistFolderPath);
-                }
-
-                //Load New cues
-                var newCues = CueManager.LoadCues(_playlistFolderPath);
-                _cues.Clear();// Clear existing cues
-                foreach (var cue in newCues)
-                {
-                    cue.PlaylistFolderPath = _playlistFolderPath; // Set PlaylistFolderPath
-                    Log.log($"Loaded Cue: {cue.CueNumber}");
-                    _cues.Add(cue);
-                }
-
-                // Update the ListView
-                CueListView.ItemsSource = null; // Reset the ItemsSource to force UI update
-                CueListView.ItemsSource = _cues;
-
-                Log.log("Cues refreshed and UI updated.");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"An error occurred while refreshing the cues: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.log($"Error refreshing cues: {ex.Message}");
-            }
         }
 
 
@@ -106,18 +68,19 @@ namespace Win_Labs
                 // Set the file path for the current selected cue or default cue
                 string cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{CueNumberSelected}.json");
 
-                if (CueManager.validJsonFileInPlaylist == true)
+                if (CueManager.validJsonFileInPlaylist == false)
                 {
                     if (!File.Exists(cueFilePath))
                     {
                         // Log and copy default cue file if not exists
-                        Log.log($"Cue file not found at {cueFilePath}. Copying default cue file.");
+                        Log.log($"Cue file not found at {cueFilePath}. Copying default cue file.", Log.LogLevel.Warning);
                         CopyDefaultCueFile(cueFilePath);
+                        LoadCues();
                     }
                 }
                 else
                 {
-                    Log.log("A valid file was found in the playlist default cue not coppied");
+                    Log.log("A valid file was found in the playlist default cue not coppied", Log.LogLevel.Warning);
                 }
 
                 // Set _cueFilePath for the current cue
@@ -135,8 +98,6 @@ namespace Win_Labs
                 MessageBox.Show($"Error initializing cue data: {ex.Message}", "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
-
 
 
         private void CopyDefaultCueFile(string destinationPath)
@@ -336,8 +297,8 @@ namespace Win_Labs
                 if (File.Exists(_cueFilePath))
                 {
                     Log.log($"File exists at {_cueFilePath}");
-                    string json = File.ReadAllText(_cueFilePath);
-                    Cue loadedCue = JsonConvert.DeserializeObject<Cue>(json);
+                    string rawJSON = File.ReadAllText(_cueFilePath);
+                    Cue loadedCue = JsonConvert.DeserializeObject<Cue>(rawJSON);
 
                     _currentCue = loadedCue ?? new Cue();
                     Log.log("Data loaded successfully");
@@ -383,7 +344,8 @@ namespace Win_Labs
             // Pass the _playlistFolderPath when creating a Cue instance
             Cue newCue = new Cue(_playlistFolderPath)
             {
-                CueNumber = _cues.Count + 1, // This will be the new cue number
+                PlaylistFolderPath = _playlistFolderPath,
+                CueNumber = _cues.Count,
                 CueName = "New Cue",
                 Duration = "00:00",
                 PreWait = "00:00",
@@ -514,9 +476,10 @@ namespace Win_Labs
 
             Log.log("Saving");
             SaveAllCues();
-            Log.log("Refreshing");
-            RefreshCues();
-            Log.log("Cues.Refreshed");
+            MessageBox.Show("Refresh feature in future update.");
+            //Log.log("Refreshing");
+            
+            //Log.log("Cues.Refreshed");
         }
 
         private void NewCueButton_Click(object sender, RoutedEventArgs e)
@@ -547,9 +510,5 @@ namespace Win_Labs
             CueManager.SaveCueToFile(newCue, _playlistFolderPath);
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }
