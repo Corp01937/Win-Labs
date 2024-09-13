@@ -324,6 +324,12 @@ namespace Win_Labs
             CueListView.ItemsSource = _cues;
         }
 
+        //private void UnloadCues()
+        //{
+        //    _cues = CueManager.UnloadCues(_playlistFolderPath);
+        //    CueListView.ItemsSource = _cues;
+        //}
+
         private void CueListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CueListView.SelectedItem is Cue selectedCue)
