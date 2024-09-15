@@ -11,7 +11,7 @@ namespace Win_Labs
     public partial class StartupWindow : Window
     {
         public static string playlistFolderPath;
-        public static string playlistImportFolderPath;
+        public static string playlistImportFilePath;
 
         public StartupWindow()
         {
@@ -66,10 +66,16 @@ namespace Win_Labs
             if(openFileDialog.ShowDialog()== System.Windows.Forms.DialogResult.OK)
             {
                 Log.log("Dialog.Opened");
-                string playlistImportFilePath = openFileDialog.FileName;
+                playlistImportFilePath = openFileDialog.FileName;
                 Log.log("Selected Import Path: " + playlistImportFilePath);
+                var exportToFolderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                exportToFolderDialog.Description = "Select the directory you want to import to.";
+                if (exportToFolderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    playlistFolderPath = exportToFolderDialog.SelectedPath;
+                    Log.log("Selected Export to Path: " + playlistFolderPath, Log.LogLevel.Info);
+                }
                 import.openZIP();
-                // Open the MainWindow with the selected playlist folder
                 var mainWindow = new MainWindow(playlistFolderPath);
                 Log.log("MainWindow.Created", Log.LogLevel.Info);
                 CueManager.startUpFinished = true;

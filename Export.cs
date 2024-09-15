@@ -39,10 +39,9 @@ namespace Win_Labs
             }
             catch (Exception ex) 
             {
-                MessageBox.Show($"Could not create file {zipFile}. Please check location and or if there is already a file with the same name as your playlist.","File Creation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show($"Could not create file {zipFile}. Please check location and or if there is already a file with the same name as your playlist."
+                    ,"File Creation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-
-
         }
     }
 }
