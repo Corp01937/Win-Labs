@@ -34,7 +34,6 @@ namespace Win_Labs
             _playlistFolderPath = playlistFolderPath;
             Log.log($"Playlist Folder Path: {_playlistFolderPath}");
             CueListView.ItemsSource = _cues;
-
             LoadCues();
             InitializeCueData();
             Log.log("CueData.Initialized");
@@ -426,16 +425,13 @@ namespace Win_Labs
         private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Log.log("Export.Clicked");
-            //export logic
-            Log.log("Started Dialog");
             var folderDialog = new System.Windows.Forms.FolderBrowserDialog();
             if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 Log.log("Dialog.Opened");
                 string playlistExportFolderPath = folderDialog.SelectedPath;
                 Log.log("Selected Export Path: " + playlistExportFolderPath);
-                //export.createZIP(playlistExportFolderPath);
-                this.Close(); // Close Dialog
+                export.createZIP(playlistExportFolderPath);
             }
         }
 

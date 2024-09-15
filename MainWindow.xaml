@@ -61,7 +61,7 @@
                         </MenuItem>
                         <MenuItem Header="File">
                             <MenuItem Header="Save" Click="SaveMenuItem_Click"/>
-                            <MenuItem Header="Export" Click="ExportMenuItem_Click" IsEnabled="False"/>
+                            <MenuItem Header="Export" Click="ExportMenuItem_Click" />
                             <MenuItem Header="Import" Click="ImportMenuItem_Click"/>
                         </MenuItem>
                     </Menu>
