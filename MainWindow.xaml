@@ -15,6 +15,7 @@
         MinWidth="840"
         WindowStartupLocation="CenterScreen">
 
+
     <Window.Resources>
         <!-- Resources to be used in this "MainWindow"-->
 
