@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Shapes;
 using Win_Labs;
 
 namespace Win_Labs

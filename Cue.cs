@@ -1,9 +1,10 @@
-using Newtonsoft.Json;
+using NAudio.Wave;
 using System;
 using System.ComponentModel;
 using System.IO;
 using System.Security.Permissions;
 using System.Windows;
+using System.Windows.Forms;
 using Win_Labs;
 
 namespace Win_Labs
@@ -21,6 +22,7 @@ namespace Win_Labs
         private string notes;
         private string _CueName;
         private bool renaming;
+        private Array CurrentExistingCues; // need to implement for finding currently existing cues
         public string PlaylistFolderPath { // setting playlist folder path for use in Cue class
             get;
             set;
@@ -45,21 +47,25 @@ namespace Win_Labs
             get => cueNumber;
             set
             {
+                float oldvalue = value;
                 if (cueNumber != value)
                 {
                     Log.log("PropertyChange.CueNumber");
                     Log.log($"Attempting to set CueNumber to {value}");
                     bool shouldProceed = CheckForDuplicateCueFile(value);
-                    
-                    if (shouldProceed ==true)
+
+                    if (shouldProceed == true)
                     {
                         RenameCueFile(cueNumber, value);
                         cueNumber = value;
                         OnPropertyChanged(nameof(CueNumber));
                         Log.log($"CueNumber set to {value}");
+                        
+                        
                     }
                     else
                     {
+                        cueNumber = oldvalue;
                         Log.log($"User chose not to replace the existing cue file.");
                     }
                 }
@@ -148,10 +154,10 @@ namespace Win_Labs
             get => fileName;
             set
             {
-                if (fileName != targetFile)
+                if (fileName != value)
                 {
                     Log.log("PropertyChange.FileName");
-                    fileName = targetFile;
+                    fileName = value;
                     OnPropertyChanged(nameof(FileName));
 
                 }
@@ -168,7 +174,7 @@ namespace Win_Labs
                     Log.log("PropertyChange.TargetFile");
                     targetFile = value;
                     OnPropertyChanged(nameof(TargetFile));
-
+                        
                 }
             }
         }
@@ -189,7 +195,6 @@ namespace Win_Labs
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-
 
         protected void OnPropertyChanged(string propertyName)
         {
@@ -293,6 +298,8 @@ namespace Win_Labs
             return $"...\\{visiblePart}";
         }
 
+        public static string oldFilePath;
+        public static string newFilePath;
 
         private void RenameCueFile(float oldCueNumber, float newCueNumber)
         {
@@ -303,8 +310,8 @@ namespace Win_Labs
             }
             renaming = true;
             // Construct file paths
-            string oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
-            string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
+            oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
+            newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
 
             // Verify the PlaylistFolderPath

@@ -1,9 +1,5 @@
-﻿using Microsoft.Win32;
-using System;
-using System.IO;
+﻿using System;
 using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Shapes;
 using Win_Labs;
 
 namespace Win_Labs

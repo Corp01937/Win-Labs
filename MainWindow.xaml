@@ -40,7 +40,7 @@
             <!-- CueList row:3 -->
             <RowDefinition Height="225"/>
             <!-- Inspector row:4 -->
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="20"/>
             <!-- Footer row:5 -->
         </Grid.RowDefinitions>
 
@@ -74,20 +74,34 @@
 
 
         <!-- Master Head Section -->
-        <DockPanel Grid.Row="1" Grid.Column="0" LastChildFill="True" DockPanel.Dock="Top" Height="80">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                <Button Content="Play" Width="60" Click="PlayButton_Click"/>
-                <Button Content="Pause" Width="60" Click="PauseButton_Click"/>
-                <Button Content="Stop" Width="60" Click="StopButton_Click"/>
-                <TextBlock x:Name="CurrentTrack" Text="No Track Selected" VerticalAlignment="Center" Margin="10,0,0,0"/>
-            </StackPanel>
+        <DockPanel Grid.Row="1" Grid.Column="0" DockPanel.Dock="Top">
+            <Grid ShowGridLines="True">
+                <!-- Define rows for vertical layout -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Define columns for vertical layout -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="Go" FontSize="50" Width="200" Height="80" Grid.Column="0" Grid.RowSpan="2" Click="PlayButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                <Button Content="Pause" Width="50" Height="40" Click="PauseButton_Click" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
+                <TextBlock x:Name="CurrentTrack" Text="No Track Selected" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Margin="10,0,0,0"/>
+            </Grid>
         </DockPanel>
 
         <!-- Toolbar -->
         <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="True" DockPanel.Dock="Top" Height="40">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button Name="RefreshButton" Content="Refresh" Click="RefreshButton_Click"/>
-                <Button Content="New Cue" Width="50" Height="50" Click="NewCueButton_Click"/>
+                <Button Name="RefreshButton" Width="50" Height="50" Content="Refresh" Click="RefreshButton_Click"/>
+                <Button Content="New Cue" Width="50" Height="50" Click="CreateNewCue_Click"/>
+                <Button Content="Delete Cue" Width="50" Height="50" Click="DeleteCue_Click"/>
             </StackPanel>
         </DockPanel>
 

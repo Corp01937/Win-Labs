@@ -4,10 +4,8 @@ using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 
 namespace Win_Labs
 {
@@ -16,8 +14,6 @@ namespace Win_Labs
         private string _cueFilePath; // Declare the _cueFilePath variable
         private string _playlistFolderPath;
         private float CueNumber;
-
-
         private WaveOutEvent? waveOut; // Nullable
         private AudioFileReader? audioFileReader; // Nullable
         public static List<Cue> _cueList = [];
@@ -317,7 +313,7 @@ namespace Win_Labs
         }
 
 
-        private void LoadCues()
+        public void LoadCues()
         {
             _cues = CueManager.LoadCues(_playlistFolderPath);
             CueListView.ItemsSource = _cues;
@@ -342,15 +338,18 @@ namespace Win_Labs
             }
         }
 
-
-
-        private void CreateNewCue_Click(object sender, RoutedEventArgs e)
+        private void DeleteCue_Click(object sender, RoutedEventArgs e) 
+        {
+            Log.log("DeleteCue.ToolbarButton");
+            DeleteCue();
+        }
+        private void CreateNewCue() 
         {
             // Pass the _playlistFolderPath when creating a Cue instance
             Cue newCue = new Cue(_playlistFolderPath)
             {
                 PlaylistFolderPath = _playlistFolderPath,
-                CueNumber = _cues.Count,
+                CueNumber = _cues.Count, // This will be the new cue number
                 CueName = "New Cue",
                 Duration = "00:00",
                 PreWait = "00:00",
@@ -368,14 +367,33 @@ namespace Win_Labs
 
             // Initialize _cueFilePath using the new cue's CueNumber
             _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{newCue.CueNumber}.json");
+            //// Rename the file
+            //File.Move(newCue, $"cue_{newCue.CueNumber}.json", true);
+            //Log.log("New file made");
+            //// Delete old file
+            //File.Delete(oldFilePath);
+            //Log.log("Old file delted");
+            //// Update _cueFilePath to the new file path
+            //_cueFilePath = newFilePath;
 
             // Save the new cue
             CueManager.SaveCueToFile(newCue, _playlistFolderPath);
+            CreatingNewCue = false;
+        }
+        public static bool CreatingNewCue;
+        private void CreateNewCue_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("Creating new cue");
+            CreatingNewCue = true;
+            CreateNewCue();
         }
 
-
-
         private void DeleteSelectedCue_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("DeleteCue.ContextMenu");
+            DeleteCue();
+        }
+        private void DeleteCue()
         {
             if (CueListView.SelectedItem is Cue selectedCue)
             {
@@ -452,6 +470,11 @@ namespace Win_Labs
 
         private void SelectTargetFile_Click(object sender, RoutedEventArgs e)
         {
+            Log.log("SelectTargetFile.Clicked");
+            SelectTargetFile();
+        }
+        public void SelectTargetFile()
+        {
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Audio Files|*.mp3;*.wav;*.flac|All Files|*.*"
@@ -461,7 +484,9 @@ namespace Win_Labs
             {
                 if (CueListView.SelectedItem is Cue selectedCue)
                 {
+                    string fileNameWoutextention = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                     selectedCue.TargetFile = openFileDialog.FileName;
+                    selectedCue.FileName = fileNameWoutextention;
                     DataContext = selectedCue;
                     CueManager.SaveCueToFile(selectedCue, _playlistFolderPath);
                     Log.log($"'{openFileDialog.FileName}' added to {CueListView.SelectedItem}");
@@ -484,33 +509,7 @@ namespace Win_Labs
             //Log.log("Cues.Refreshed");
         }
 
-        private void NewCueButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Pass the _playlistFolderPath when creating a Cue instance
-            Cue newCue = new Cue(_playlistFolderPath)
-            {
-                CueNumber = _cues.Count + 1, // This will be the new cue number
-                CueName = "New Cue",
-                Duration = "00:00",
-                PreWait = "00:00",
-                PostWait = "00:00",
-                AutoFollow = false,
-                FileName = "",
-                TargetFile = "",
-                Notes = ""
-            };
 
-            // Add the new cue to the collection
-            _cues.Add(newCue);
-            CueListView.SelectedItem = newCue;
-            DataContext = newCue;
-
-            // Initialize _cueFilePath using the new cue's CueNumber
-            _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{newCue.CueNumber}.json");
-
-            // Save the new cue
-            CueManager.SaveCueToFile(newCue, _playlistFolderPath);
-        }
 
     }
 }

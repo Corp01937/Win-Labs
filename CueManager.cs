@@ -202,6 +202,7 @@ namespace Win_Labs
 
             foreach (var file in cueFilesArray) // For each file in array
             {
+                startUpFinished = false;
                 Log.log($"Processing file: {file}");
                 try
                 {
@@ -219,7 +220,7 @@ namespace Win_Labs
                     else // for cases with an empty file
                     {
                         Log.log($"Deserialization returned null for file: {file}", Log.LogLevel.Warning);
-                                    Log.log("Finished loading cues.");
+                        Log.log("Finished loading cues.");
                     }
                 }
                 catch (JsonException jsonEx)
