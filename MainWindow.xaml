@@ -26,7 +26,7 @@
 
     </Window.Resources>
 
-    <Grid ShowGridLines="True">
+    <Grid ShowGridLines="False">
 
         <!-- Define rows for vertical layout -->
         <Grid.RowDefinitions>
@@ -75,7 +75,7 @@
 
         <!-- Master Head Section -->
         <DockPanel Grid.Row="1" Grid.Column="0" DockPanel.Dock="Top">
-            <Grid ShowGridLines="True">
+            <Grid ShowGridLines="False">
                 <!-- Define rows for vertical layout -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -88,7 +88,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Content="Go" FontSize="50" Width="200" Height="80" Grid.Column="0" Grid.RowSpan="2" Click="PlayButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                <Button Content="Go" FontSize="50" Width="200" Height="80" Grid.Column="0" Grid.RowSpan="2" Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0"/>
                 <Button Content="Pause" Width="50" Height="40" Click="PauseButton_Click" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
                 <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top"/>
                 <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0"/>

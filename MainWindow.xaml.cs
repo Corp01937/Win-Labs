@@ -6,10 +6,12 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
+using Win_Labs;
 
 namespace Win_Labs
 {
-    public partial class MainWindow : Window, IDisposable
+    public partial class MainWindow : Window
     {
         private string _cueFilePath; // Declare the _cueFilePath variable
         private string _playlistFolderPath;
@@ -126,45 +128,47 @@ namespace Win_Labs
             }
         }
 
-        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        private void GoButton_Click(object sender, RoutedEventArgs e)
         {
-            Log.log("NAudio.Play");
-            var openFileDialog = new OpenFileDialog
-            {
-                Filter = "Audio files (*.mp3;*.wav)|*.mp3;*.wav"
-            };
+            MessageBox.Show("Add functionality");
+            //Log.log("NAudio.Play");
+            //var openFileDialog = new OpenFileDialog
+            //{
+            //    Filter = "Audio files (*.mp3;*.wav)|*.mp3;*.wav"
+            //};
+            ////wakatime test
 
-            Log.log("Dialog.Attempted");
+            //Log.log("Dialog.Attempted");
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                Log.log("Succeeded");
-                try
-                {
-                    CleanupAudio();
+            //if (openFileDialog.ShowDialog() == true)
+            //{
+            //    Log.log("Succeeded");
+            //    try
+            //    {
+            //        CleanupAudio();
 
-                    audioFileReader = new AudioFileReader(openFileDialog.FileName);
-                    waveOut = new WaveOutEvent();
+            //        audioFileReader = new AudioFileReader(openFileDialog.FileName);
+            //        waveOut = new WaveOutEvent();
 
-                    if (waveOut != null && audioFileReader != null)
-                    {
-                        waveOut.Init(audioFileReader);
-                        waveOut.Play();
-                        CurrentTrack.Text = $"Playing: {Path.GetFileName(openFileDialog.FileName)}";
-                        Log.log("Success");
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error initializing audio playback.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        Log.log("Error.Playback");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error playing the track: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Log.log("Error.Playing");
-                }
-            }
+            //        if (waveOut != null && audioFileReader != null)
+            //        {
+            //            waveOut.Init(audioFileReader);
+            //            waveOut.Play();
+            //            CurrentTrack.Text = $"Playing: {Path.GetFileName(openFileDialog.FileName)}";
+            //            Log.log("Success");
+            //        }
+            //        else
+            //        {
+            //            MessageBox.Show("Error initializing audio playback.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //            Log.log("Error.Playback");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show($"Error playing the track: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //        Log.log("Error.Playing");
+            //    }
+            //}
         }
 
         private void CleanupAudio()
@@ -174,6 +178,7 @@ namespace Win_Labs
             waveOut = null;
             audioFileReader = null;
             CurrentTrack.Text = "No Track Selected";
+            Log.log("NAudio.Dispose_Complete");
         }
 
         private void PauseButton_Click(object sender, RoutedEventArgs e)
@@ -206,25 +211,28 @@ namespace Win_Labs
             }
         }
 
-        public void Dispose()
-        {
-            waveOut?.Dispose();
-            audioFileReader?.Dispose();
-            Log.log("NAudio.Dispose");
-        }
-
-        private void Window_Closing(object sender, CancelEventArgs e)
-        {
-            Dispose();
-            Log.log("Window.Dispose");
-        }
 
         protected override void OnClosing(CancelEventArgs e)
         {
             Log.log("Close.Detected");
-            base.OnClosing(e);
-            Log.log("Trying to save all cue data");
-            SaveAllCues();
+            Log.log("Propting for confirmation");
+
+            var result = MessageBox.Show(
+                "Are you sure you want to close the program",
+                "Have you saved tho??",
+                MessageBoxButton.YesNo, 
+                MessageBoxImage.Warning);
+            if (result == MessageBoxResult.No) { Log.log("UserInput.No"); e.Cancel = true; ; } 
+            else { 
+                Log.log("UserInput.yes"); 
+                Log.log("Closing");
+                Log.log("Attemping to clean up audio player");
+                CleanupAudio();
+                Log.log("Trying to save all cue data");
+                SaveAllCues();
+                Log.log("Closed");
+            }
+
         }
 
         public void SaveAllCues()
