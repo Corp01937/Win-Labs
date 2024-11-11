@@ -1,52 +1,48 @@
 ﻿<Window x:Class="Win_Labs.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Win_Labs"
         mc:Ignorable="d"
         Title="Win-Labs" Height="600" Width="800"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Background="{DynamicResource WindowBackgroundBrush}"
         ShowInTaskbar="True"
         BorderBrush="{DynamicResource WindowBackgroundBrush}"
         BorderThickness="0"
-        MinHeight="600" 
+        MinHeight="600"
         MinWidth="840"
         WindowStartupLocation="CenterScreen">
-
 
     <Window.Resources>
         <!-- Resources to be used in this "MainWindow"-->
 
         <LinearGradientBrush x:Key="WindowBackgroundBrush" Opacity="1">
-            <GradientStop Offset="0" Color="Gray"/>
-            <GradientStop Offset="3" Color="Gray"/>
+            <GradientStop Offset="0" Color="Gray" />
+            <GradientStop Offset="3" Color="Gray" />
         </LinearGradientBrush>
-
     </Window.Resources>
 
     <Grid ShowGridLines="False">
 
         <!-- Define rows for vertical layout -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="30" />
             <!-- Title row:0 -->
-            <RowDefinition Height="120"/>
+            <RowDefinition Height="120" />
             <!-- MasterHead row:1 -->
             <RowDefinition Height="50" />
             <!-- Toolbar row:2 -->
             <RowDefinition Height="*" />
             <!-- CueList row:3 -->
-            <RowDefinition Height="225"/>
+            <RowDefinition Height="225" />
             <!-- Inspector row:4 -->
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="20" />
             <!-- Footer row:5 -->
         </Grid.RowDefinitions>
 
         <!-- Define columns for vertical layout -->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*" />
             <!-- Main content area -->
         </Grid.ColumnDefinitions>
 
@@ -57,21 +53,19 @@
                     <!-- Add Menu to Title Bar -->
                     <Menu DockPanel.Dock="Left">
                         <MenuItem Header="Window">
-                            <MenuItem Header="Close" Click="CloseMenuItem_Click"/>
-                            <MenuItem Header="other"/>
+                            <MenuItem Header="Close" Click="CloseMenuItem_Click" />
+                            <MenuItem Header="other" />
                         </MenuItem>
                         <MenuItem Header="File">
-                            <MenuItem Header="Save" Click="SaveMenuItem_Click"/>
+                            <MenuItem Header="Save" Click="SaveMenuItem_Click" />
                             <MenuItem Header="Export" Click="ExportMenuItem_Click" />
-                            <MenuItem Header="Import" Click="ImportMenuItem_Click"/>
+                            <MenuItem Header="Import" Click="ImportMenuItem_Click" />
                         </MenuItem>
                     </Menu>
-                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" Margin="395,0,0,0" FontWeight="Bold"/>
+                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" Margin="395,0,0,0" FontWeight="Bold" />
                 </Grid>
             </Border>
         </DockPanel>
-
-
 
         <!-- Master Head Section -->
         <DockPanel Grid.Row="1" Grid.Column="0" DockPanel.Dock="Top">
@@ -79,29 +73,29 @@
                 <!-- Define rows for vertical layout -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <!-- Define columns for vertical layout -->
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button Content="Go" FontSize="50" Width="200" Height="80" Grid.Column="0" Grid.RowSpan="2" Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0"/>
-                <Button Content="Pause" Width="50" Height="40" Click="PauseButton_Click" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0"/>
-                <TextBlock x:Name="CurrentTrack" Text="No Track Selected" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Margin="10,0,0,0"/>
+                <Button Content="Go" FontSize="50" Width="200" Height="80" Grid.Column="0" Grid.RowSpan="2" Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0" />
+                <Button Content="Pause" Width="50" Height="40" Click="PauseButton_Click" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+                <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                <TextBlock x:Name="CurrentTrack" Text="No Track Selected" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Margin="10,0,0,0" />
             </Grid>
         </DockPanel>
 
         <!-- Toolbar -->
         <DockPanel Grid.Row="2" Grid.Column="0" LastChildFill="True" DockPanel.Dock="Top" Height="40">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button Name="RefreshButton" Width="50" Height="50" Content="Refresh" Click="RefreshButton_Click"/>
-                <Button Content="New Cue" Width="50" Height="50" Click="CreateNewCue_Click"/>
-                <Button Content="Delete Cue" Width="50" Height="50" Click="DeleteCue_Click"/>
+                <Button Name="RefreshButton" Width="50" Height="50" Content="Refresh" Click="RefreshButton_Click" />
+                <Button Content="New Cue" Width="50" Height="50" Click="CreateNewCue_Click" />
+                <Button Content="Delete Cue" Width="50" Height="50" Click="DeleteCue_Click" />
             </StackPanel>
         </DockPanel>
 
@@ -110,102 +104,99 @@
             <ListView x:Name="CueListView" SelectionChanged="CueListView_SelectionChanged">
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Create New Cue" Click="CreateNewCue_Click"/>
-                        <MenuItem Header="Delete Selected Cue" Click="DeleteSelectedCue_Click"/>
+                        <MenuItem Header="Create New Cue" Click="CreateNewCue_Click" />
+                        <MenuItem Header="Delete Selected Cue" Click="DeleteSelectedCue_Click" />
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>
                     <GridView SelectiveScrollingGrid.SelectiveScrollingOrientation="Both">
-                        <GridViewColumn Header="Cue #" Width="50" DisplayMemberBinding="{Binding CueNumber}"/>
-                        <GridViewColumn Header="CueName" Width="450" DisplayMemberBinding="{Binding CueName}"/>
-                        <GridViewColumn Header="Duration" Width="100" DisplayMemberBinding="{Binding Duration}"/>
-                        <GridViewColumn Header="PreWait" Width="75" DisplayMemberBinding="{Binding PreWait}"/>
-                        <GridViewColumn Header="PostWait" Width="75" DisplayMemberBinding="{Binding PostWait}"/>
+                        <GridViewColumn Header="Cue #" Width="50" DisplayMemberBinding="{Binding CueNumber}" />
+                        <GridViewColumn Header="CueName" Width="450" DisplayMemberBinding="{Binding CueName}" />
+                        <GridViewColumn Header="Duration" Width="100" DisplayMemberBinding="{Binding Duration}" />
+                        <GridViewColumn Header="PreWait" Width="75" DisplayMemberBinding="{Binding PreWait}" />
+                        <GridViewColumn Header="PostWait" Width="75" DisplayMemberBinding="{Binding PostWait}" />
                         <GridViewColumn Header="Auto Follow" Width="80">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <CheckBox IsChecked="{Binding AutoFollow}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <CheckBox IsChecked="{Binding AutoFollow}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
-
         </DockPanel>
-
 
         <!-- Inspector -->
         <StackPanel Grid.Row="4" Grid.Column="0">
             <Grid ShowGridLines="False">
                 <!-- Define rows for horizontal Layout -->
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
                 </Grid.RowDefinitions>
 
                 <!-- Define columns for vertical layout -->
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="75" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
                 <!-- Cue Name -->
-                <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Text="Cue Name:"/>
-                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding CueName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBlock Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Text="Cue Name:" />
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding CueName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" />
 
                 <!-- Cue Number -->
-                <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Text="Cue Number:"/>
-                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding CueNumber, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Text="Cue Number:" />
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding CueNumber, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" />
 
                 <!-- Duration -->
-                <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Text="Duration:"/>
-                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Text="Duration:" />
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" />
 
                 <!-- Pre Wait -->
-                <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Pre Wait:"/>
-                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding PreWait, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Pre Wait:" />
+                <TextBox Grid.Column="1" Grid.Row="3" Text="{Binding PreWait, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" />
 
                 <!-- Post Wait -->
-                <TextBlock Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Text="Post Wait:"/>
-                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding PostWait, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False"/>
+                <TextBlock Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" Text="Post Wait:" />
+                <TextBox Grid.Column="1" Grid.Row="4" Text="{Binding PostWait, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" />
 
                 <!-- Auto Follow -->
-                <TextBlock Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" Text="Auto Follow:"/>
-                <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding AutoFollow, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                <TextBlock Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" Text="Auto Follow:" />
+                <CheckBox Grid.Column="1" Grid.Row="5" IsChecked="{Binding AutoFollow, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0" />
 
                 <!-- File Name -->
-                <TextBlock Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" Text="File Name:"/>
-                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
+                <TextBlock Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" Text="File Name:" />
+                <TextBox Grid.Column="1" Grid.Row="6" Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" />
 
                 <!-- Target File -->
-                <TextBlock Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" Text="Target File:"/>
-                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding TargetFile, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True"/>
-                
+                <TextBlock Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" Text="Target File:" />
+                <TextBox Grid.Column="1" Grid.Row="7" Text="{Binding TargetFile, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" />
+
                 <!-- Button with a folder icon -->
                 <Button Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right" Click="SelectTargetFile_Click">
                     <Button.Content>
-                        <Image Source="pack://application:,,,/Resources/jpgs/Folder.jpg" Width="16" Height="16"/>
+                        <Image Source="pack://application:,,,/Resources/jpgs/Folder.jpg" Width="16" Height="16" />
                     </Button.Content>
                 </Button>
 
                 <!-- Notes -->
-                <TextBlock Grid.Column="0" Grid.Row="8" VerticalAlignment="Center" Text="Notes:"/>
-                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="Auto"/>
+                <TextBlock Grid.Column="0" Grid.Row="8" VerticalAlignment="Center" Text="Notes:" />
+                <TextBox Grid.Column="1" Grid.Row="8" Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" Height="Auto" />
             </Grid>
         </StackPanel>
 
-
         <!-- Footer -->
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="GitHub: https://github.com/Corp01937/Win-Labs" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"/>
-        <Button Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Content="Settings" Width="100"/>
-            <ToggleButton Grid.Row="5" Grid.Column="0" x:Name="EditModeToggle" Content="Edit Mode" Width="100" Click="EditModeToggle_Click"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="GitHub: https://github.com/Corp01937/Win-Labs" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
+        <Button Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Content="Settings" Width="100" />
+        <ToggleButton Grid.Row="5" Grid.Column="0" x:Name="EditModeToggle" Content="Edit Mode" Width="100" Click="EditModeToggle_Click" />
     </Grid>
 </Window>

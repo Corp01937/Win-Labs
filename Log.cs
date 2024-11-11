@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using Win_Labs;
+﻿using System.IO;
 
 namespace Win_Labs
 {
@@ -10,13 +8,13 @@ namespace Win_Labs
         private static readonly string logFileName = $"log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt"; // Log file with date and time
         private static readonly string logFilePath = Path.Combine(logDirectory, logFileName);
         private static readonly int maxLogFiles = 10; // Keep only the last 10 log files
+
         public static void logFile()
         {
             if (!Directory.Exists(logDirectory))
             {
                 Directory.CreateDirectory(logDirectory);
                 log($"Log Directory created at: {logDirectory}");
-
             }
             // Ensure the log file exists
             if (!File.Exists(logFilePath))
@@ -30,6 +28,7 @@ namespace Win_Labs
             // Remove old log files if more than 10 exist
             CleanUpOldLogFiles();
         }
+
         // Method to clean up old log files, keeping only the last "maxLogFiles"
         private static void CleanUpOldLogFiles()
         {
@@ -50,6 +49,7 @@ namespace Win_Labs
                 }
             }
         }
+
         public static void log(string message, LogLevel level = LogLevel.Info)
         {
             try

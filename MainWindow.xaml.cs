@@ -6,8 +6,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
-using Win_Labs;
 
 namespace Win_Labs
 {
@@ -40,7 +38,6 @@ namespace Win_Labs
             _currentCue.PropertyChanged += CurrentCue_PropertyChanged;
         }
 
-
         private void CurrentCue_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (sender is Cue cue)
@@ -56,7 +53,6 @@ namespace Win_Labs
                 }
             }
         }
-
 
         private void InitializeCueData()
         {
@@ -87,7 +83,7 @@ namespace Win_Labs
                 {
                     // Load the cue data
                     LoadCueData();
-                } 
+                }
             }
             catch (Exception ex)
             {
@@ -96,10 +92,8 @@ namespace Win_Labs
             }
         }
 
-
         private void CopyDefaultCueFile(string destinationPath)
         {
-            
             try
             {
                 Log.log("DefaultCueFilePath: " + DefaultCueFilePath);
@@ -211,7 +205,6 @@ namespace Win_Labs
             }
         }
 
-
         protected override void OnClosing(CancelEventArgs e)
         {
             Log.log("Close.Detected");
@@ -220,11 +213,12 @@ namespace Win_Labs
             var result = MessageBox.Show(
                 "Are you sure you want to close the program",
                 "Have you saved tho??",
-                MessageBoxButton.YesNo, 
+                MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
-            if (result == MessageBoxResult.No) { Log.log("UserInput.No"); e.Cancel = true; ; } 
-            else { 
-                Log.log("UserInput.yes"); 
+            if (result == MessageBoxResult.No) { Log.log("UserInput.No"); e.Cancel = true; ; }
+            else
+            {
+                Log.log("UserInput.yes");
                 Log.log("Closing");
                 Log.log("Attemping to clean up audio player");
                 CleanupAudio();
@@ -232,7 +226,6 @@ namespace Win_Labs
                 SaveAllCues();
                 Log.log("Closed");
             }
-
         }
 
         public void SaveAllCues()
@@ -269,9 +262,8 @@ namespace Win_Labs
             {
                 MessageBox.Show($"Error saving cue {cue.CueNumber}: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Log.log($"Error saving cue {cue.CueNumber}: {ex.Message}");
-            } 
+            }
         }
-
 
         private void SaveCueData(float cueNumber)
         {
@@ -288,7 +280,6 @@ namespace Win_Labs
                 Log.log($"No cue found with number {cueNumber}");
             }
         }
-
 
         private void LoadCueData()
         {
@@ -320,7 +311,6 @@ namespace Win_Labs
             }
         }
 
-
         public void LoadCues()
         {
             _cues = CueManager.LoadCues(_playlistFolderPath);
@@ -346,12 +336,13 @@ namespace Win_Labs
             }
         }
 
-        private void DeleteCue_Click(object sender, RoutedEventArgs e) 
+        private void DeleteCue_Click(object sender, RoutedEventArgs e)
         {
             Log.log("DeleteCue.ToolbarButton");
             DeleteCue();
         }
-        private void CreateNewCue() 
+
+        private void CreateNewCue()
         {
             // Pass the _playlistFolderPath when creating a Cue instance
             Cue newCue = new Cue(_playlistFolderPath)
@@ -388,7 +379,9 @@ namespace Win_Labs
             CueManager.SaveCueToFile(newCue, _playlistFolderPath);
             CreatingNewCue = false;
         }
+
         public static bool CreatingNewCue;
+
         private void CreateNewCue_Click(object sender, RoutedEventArgs e)
         {
             Log.log("Creating new cue");
@@ -401,6 +394,7 @@ namespace Win_Labs
             Log.log("DeleteCue.ContextMenu");
             DeleteCue();
         }
+
         private void DeleteCue()
         {
             if (CueListView.SelectedItem is Cue selectedCue)
@@ -481,6 +475,7 @@ namespace Win_Labs
             Log.log("SelectTargetFile.Clicked");
             SelectTargetFile();
         }
+
         public void SelectTargetFile()
         {
             var openFileDialog = new OpenFileDialog
@@ -508,16 +503,12 @@ namespace Win_Labs
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-
             Log.log("Saving");
             SaveAllCues();
             MessageBox.Show("Refresh feature in future update.");
             //Log.log("Refreshing");
-            
+
             //Log.log("Cues.Refreshed");
         }
-
-
-
     }
 }

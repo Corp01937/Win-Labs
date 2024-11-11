@@ -1,15 +1,13 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
 using System.Windows;
-using Win_Labs;
 
 namespace Win_Labs
 {
     internal class export
     {
-
         public static string playlistFolderPath = StartupWindow.playlistFolderPath;
+
         public static void createZIP(string playlistExportFolderPath)
         {
             string playlistName = playlistFolderPath.Split(@"\")[^1] + ".zip";
@@ -33,9 +31,9 @@ namespace Win_Labs
                 {
                     var result = MessageBox.Show(
                         "File with same name detected. Overwrite?",
-                        "Overwrite File?", 
-                        MessageBoxButton.OKCancel, 
-                        MessageBoxImage.Warning, 
+                        "Overwrite File?",
+                        MessageBoxButton.OKCancel,
+                        MessageBoxImage.Warning,
                         MessageBoxResult.Cancel
                     );
                     if (result == MessageBoxResult.Cancel) { Log.log("UserInput.Cancel"); } else { Log.log("UserInput.Ok"); overwrite = true; }
@@ -47,7 +45,7 @@ namespace Win_Labs
                 }
                 else
                 {
-                    if(File.Exists(zipFile) == true)
+                    if (File.Exists(zipFile) == true)
                     {
                         File.Delete(zipFile);
                     }
@@ -56,13 +54,13 @@ namespace Win_Labs
                 }
                 Log.log($"{zipFile} Created.");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Log.logException(ex);
                 MessageBox.Show(
                     $"Could not create file {zipFile}. Please check location and or if there is already a file with the same name as your playlist."
-                    ,"File Creation Error", 
-                    MessageBoxButton.OK, 
+                    , "File Creation Error",
+                    MessageBoxButton.OK,
                     MessageBoxImage.Warning
                     );
             }

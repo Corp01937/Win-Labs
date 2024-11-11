@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows;
-using Win_Labs;
+﻿using System.Windows;
 
 namespace Win_Labs
 {
@@ -26,6 +24,5 @@ namespace Win_Labs
                     , "File Opening Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
-
     }
 }

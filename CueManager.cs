@@ -1,14 +1,10 @@
-﻿using NAudio.Wave;
-using Newtonsoft.Json;
-using System;
+﻿using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
-using Win_Labs;
 
 namespace Win_Labs
 {
-
     public static class CueManager
     {
         public static bool startUpFinished;
@@ -61,6 +57,7 @@ namespace Win_Labs
 
             return $"...\\{visiblePart}";
         }
+
         // Method to save a single cue to a file
         public static void SaveCueToFile(Cue cue, string playlistFolderPath)
         {
@@ -171,7 +168,6 @@ namespace Win_Labs
             return false;
         }
 
-
         // Method to load cues from a folder
         public static ObservableCollection<Cue> LoadCues(string playlistFolderPath)
         {
@@ -242,13 +238,13 @@ namespace Win_Labs
 
             return observableCollectionCue;
         }
+
         public static void UnloadCues(ObservableCollection<Cue> cues)
         {
             Log.log("UnloadCues.Caled");
             string PlaylistFolderPath = StartupWindow.playlistFolderPath; // is called here again as this method is called before the setter.
             Log.log("Saving");
             SaveAllCues(cues, PlaylistFolderPath); // saves cues to avoid loss of data
-
 
             return;
         }

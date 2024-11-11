@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows;
-using Win_Labs;
+﻿using System.Windows;
 
 namespace Win_Labs
 {
@@ -9,17 +7,15 @@ namespace Win_Labs
     /// </summary>
     public partial class App : Application
     {
-        bool Launched = false;
+        private bool Launched = false;
 
         private void LaunchDebug()
         {
             Launched = true;
-
         }
 
         private void Routing()
         {
-            
             Log.log("Routing.Initialised", Log.LogLevel.Info);
         }
 

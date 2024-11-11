@@ -1,10 +1,6 @@
-using NAudio.Wave;
-using System;
 using System.ComponentModel;
 using System.IO;
-using System.Security.Permissions;
 using System.Windows;
-using Win_Labs;
 
 namespace Win_Labs
 {
@@ -22,17 +18,17 @@ namespace Win_Labs
         private string _CueName;
         private bool renaming;
         private Array CurrentExistingCues; // need to implement for finding currently existing cues
-        public string PlaylistFolderPath { // setting playlist folder path for use in Cue class
+
+        public string PlaylistFolderPath
+        { // setting playlist folder path for use in Cue class
             get;
             set;
-
         }
 
         // Constructor with a parameter for playlistFolderPath
         public Cue(string playlistFolderPath)
         {
             PlaylistFolderPath = StartupWindow.playlistFolderPath;
-
         }
 
         // Default constructor
@@ -59,8 +55,6 @@ namespace Win_Labs
                         cueNumber = value;
                         OnPropertyChanged(nameof(CueNumber));
                         Log.log($"CueNumber set to {value}");
-                        
-                        
                     }
                     else
                     {
@@ -70,8 +64,6 @@ namespace Win_Labs
                 }
             }
         }
-
-
 
         public string CueName
         {
@@ -83,7 +75,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.CueName");
                     _CueName = value;
                     OnPropertyChanged(nameof(CueName));
-
                 }
             }
         }
@@ -98,7 +89,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.Duration");
                     duration = value;
                     OnPropertyChanged(nameof(Duration));
-
                 }
             }
         }
@@ -113,7 +103,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.PreWait");
                     preWait = value;
                     OnPropertyChanged(nameof(PreWait));
-
                 }
             }
         }
@@ -128,7 +117,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.PostWait");
                     postWait = value;
                     OnPropertyChanged(nameof(PostWait));
-
                 }
             }
         }
@@ -143,7 +131,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.AutoFollow");
                     autoFollow = value;
                     OnPropertyChanged(nameof(AutoFollow));
-
                 }
             }
         }
@@ -158,7 +145,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.FileName");
                     fileName = value;
                     OnPropertyChanged(nameof(FileName));
-
                 }
             }
         }
@@ -173,7 +159,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.TargetFile");
                     targetFile = value;
                     OnPropertyChanged(nameof(TargetFile));
-                        
                 }
             }
         }
@@ -188,7 +173,6 @@ namespace Win_Labs
                     Log.log("PropertyChange.Notes");
                     notes = value;
                     OnPropertyChanged(nameof(Notes));
-
                 }
             }
         }
@@ -200,15 +184,14 @@ namespace Win_Labs
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             Log.log("Save.Called");
             Save();
-            
         }
 
         public void Save()
         {
-            if(renaming== true) { return; }
+            if (renaming == true) { return; }
             PlaylistFolderPath = StartupWindow.playlistFolderPath; // is called here again as this method is called before the setter.
 
-            if (string.IsNullOrEmpty(PlaylistFolderPath)==false)
+            if (string.IsNullOrEmpty(PlaylistFolderPath) == false)
             {
                 CueManager.SaveCueToFile(this, PlaylistFolderPath);
                 Log.log("Saved");
@@ -216,14 +199,14 @@ namespace Win_Labs
             else
             {
                 Log.log("Not Saved");
-                Log.log("String.IsNullOrEmpty(PlaylistFolderPath)"+ " = True");
-                Log.log("PlayslistFolderPath = "+ PlaylistFolderPath);
+                Log.log("String.IsNullOrEmpty(PlaylistFolderPath)" + " = True");
+                Log.log("PlayslistFolderPath = " + PlaylistFolderPath);
             }
         }
 
         private bool CheckForDuplicateCueFile(float newCueNumber)
         {
-            if(CueManager.startUpFinished == false)
+            if (CueManager.startUpFinished == false)
             {
                 Log.log("In startup mode duplicate check skiped.");
                 return true;
@@ -233,9 +216,9 @@ namespace Win_Labs
             string newFilePath = Path.Combine(PlaylistFolderPath, fileName);
 
             // Check if the new file already exists
-            if (File.Exists(newFilePath)==true)
+            if (File.Exists(newFilePath) == true)
             {
-                Log.log("Duplicate file found: "+newFilePath);
+                Log.log("Duplicate file found: " + newFilePath);
                 var result = MessageBox.Show(
                     $"A cue with the number {newCueNumber} already exists. Do you want to replace it?",
                     "File Already Exists",
@@ -302,7 +285,7 @@ namespace Win_Labs
 
         private void RenameCueFile(float oldCueNumber, float newCueNumber)
         {
-            if(CueManager.startUpFinished == false)
+            if (CueManager.startUpFinished == false)
             {
                 Log.log("In startup mode Rename skiped.");
                 return;
@@ -311,7 +294,6 @@ namespace Win_Labs
             // Construct file paths
             oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
             newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
-
 
             // Verify the PlaylistFolderPath
             if (!Directory.Exists(PlaylistFolderPath))
@@ -356,9 +338,6 @@ namespace Win_Labs
             }
             renaming = false;
         }
-
-
-
 
         public void SetFilePath(string filePath)
         {
