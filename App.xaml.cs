@@ -16,22 +16,21 @@ namespace Win_Labs
 
         private void Routing()
         {
-            Log.log("Routing.Initialised", Log.LogLevel.Info);
+            Log.Info("Routing.Initialised");
         }
 
         private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            Log.log("Exception.Caught", Log.LogLevel.Warning);
+            Log.Warning("Exception.Caught");
             MessageBox.Show("An unhandled exception just occurred: " + e.Exception.Message, "Exception Sample", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            Log.logFile();
-            Log.log("Program.Start", Log.LogLevel.Info);
+            Log.Info("Program.Start");
             LaunchDebug();
-            Log.log("Creating.StartupWindow", Log.LogLevel.Info);
+            Log.Info("Creating.StartupWindow");
 
             // Create the startup window
             StartupWindow startupWindow = new StartupWindow();
@@ -40,7 +39,7 @@ namespace Win_Labs
             Routing();
 
             // Show the startup window
-            Log.log("Showing.StartupWindow", Log.LogLevel.Info);
+            Log.Info("Showing.StartupWindow");
             startupWindow.Show();
         }
     }
