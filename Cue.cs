@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -6,60 +7,49 @@ namespace Win_Labs
 {
     public class Cue : INotifyPropertyChanged
     {
-        private float cueNumber;
+        private float _cueNumber;
         private string _cueFilePath;
-        private string duration;
-        private string preWait;
-        private string postWait;
-        private bool autoFollow;
-        private string fileName;
-        private string targetFile;
-        private string notes;
-        private string _CueName;
-        private bool renaming;
-        private Array CurrentExistingCues; // need to implement for finding currently existing cues
+        private string _duration;
+        private string _preWait;
+        private string _postWait;
+        private bool _autoFollow;
+        private string _fileName;
+        private string _targetFile;
+        private string _notes;
+        private string _cueName;
+        private bool _renaming;
 
-        public string PlaylistFolderPath
-        { // setting playlist folder path for use in Cue class
-            get;
-            set;
-        }
+        // Instance property
+        public string PlaylistFolderPath { get; set; }
 
-        // Constructor with a parameter for playlistFolderPath
         public Cue(string playlistFolderPath)
         {
-            PlaylistFolderPath = StartupWindow.playlistFolderPath;
+            PlaylistFolderPath = playlistFolderPath;
         }
 
-        // Default constructor
-        public Cue()
-        {
-            PlaylistFolderPath = string.Empty;
-        }
+        public Cue() : this(string.Empty) { }
 
         public float CueNumber
         {
-            get => cueNumber;
+            get => _cueNumber;
             set
             {
-                float oldvalue = value;
-                if (cueNumber != value)
+                if (_cueNumber != value)
                 {
-                    Log.log("PropertyChange.CueNumber");
-                    Log.log($"Attempting to set CueNumber to {value}");
-                    bool shouldProceed = CheckForDuplicateCueFile(value);
+                    
+                    Log.Info($"PropertyChange.CueNumber - Attempting to set CueNumber to {value}");
+                    bool proceed = CheckForDuplicateCueFile(value);
 
-                    if (shouldProceed == true)
+                    if (proceed)
                     {
-                        RenameCueFile(cueNumber, value);
-                        cueNumber = value;
+                        RenameCueFile(_cueNumber, value);
+                        _cueNumber = value;
                         OnPropertyChanged(nameof(CueNumber));
-                        Log.log($"CueNumber set to {value}");
+                        Log.Info($"CueNumber set to {value}");
                     }
                     else
                     {
-                        cueNumber = oldvalue;
-                        Log.log($"User chose not to replace the existing cue file.");
+                        Log.Info("User chose not to replace the existing cue file.");
                     }
                 }
             }
@@ -67,13 +57,13 @@ namespace Win_Labs
 
         public string CueName
         {
-            get => _CueName;
+            get => _cueName;
             set
             {
-                if (_CueName != value)
+                if (_cueName != value)
                 {
-                    Log.log("PropertyChange.CueName");
-                    _CueName = value;
+                    Log.Info("PropertyChange.CueName");
+                    _cueName = value;
                     OnPropertyChanged(nameof(CueName));
                 }
             }
@@ -81,13 +71,13 @@ namespace Win_Labs
 
         public string Duration
         {
-            get => duration;
+            get => _duration;
             set
             {
-                if (duration != value)
+                if (_duration != value)
                 {
-                    Log.log("PropertyChange.Duration");
-                    duration = value;
+                    Log.Info("PropertyChange.Duration");
+                    _duration = value;
                     OnPropertyChanged(nameof(Duration));
                 }
             }
@@ -95,13 +85,13 @@ namespace Win_Labs
 
         public string PreWait
         {
-            get => preWait;
+            get => _preWait;
             set
             {
-                if (preWait != value)
+                if (_preWait != value)
                 {
-                    Log.log("PropertyChange.PreWait");
-                    preWait = value;
+                    Log.Info("PropertyChange.PreWait");
+                    _preWait = value;
                     OnPropertyChanged(nameof(PreWait));
                 }
             }
@@ -109,13 +99,13 @@ namespace Win_Labs
 
         public string PostWait
         {
-            get => postWait;
+            get => _postWait;
             set
             {
-                if (postWait != value)
+                if (_postWait != value)
                 {
-                    Log.log("PropertyChange.PostWait");
-                    postWait = value;
+                    Log.Info("PropertyChange.PostWait");
+                    _postWait = value;
                     OnPropertyChanged(nameof(PostWait));
                 }
             }
@@ -123,13 +113,13 @@ namespace Win_Labs
 
         public bool AutoFollow
         {
-            get => autoFollow;
+            get => _autoFollow;
             set
             {
-                if (autoFollow != value)
+                if (_autoFollow != value)
                 {
-                    Log.log("PropertyChange.AutoFollow");
-                    autoFollow = value;
+                    Log.Info("PropertyChange.AutoFollow");
+                    _autoFollow = value;
                     OnPropertyChanged(nameof(AutoFollow));
                 }
             }
@@ -137,13 +127,13 @@ namespace Win_Labs
 
         public string FileName
         {
-            get => fileName;
+            get => _fileName;
             set
             {
-                if (fileName != value)
+                if (_fileName != value)
                 {
-                    Log.log("PropertyChange.FileName");
-                    fileName = value;
+                    Log.Info("PropertyChange.FileName");
+                    _fileName = value;
                     OnPropertyChanged(nameof(FileName));
                 }
             }
@@ -151,13 +141,13 @@ namespace Win_Labs
 
         public string TargetFile
         {
-            get => targetFile;
+            get => _targetFile;
             set
             {
-                if (targetFile != value)
+                if (_targetFile != value)
                 {
-                    Log.log("PropertyChange.TargetFile");
-                    targetFile = value;
+                    Log.Info("PropertyChange.TargetFile");
+                    _targetFile = value;
                     OnPropertyChanged(nameof(TargetFile));
                 }
             }
@@ -165,13 +155,13 @@ namespace Win_Labs
 
         public string Notes
         {
-            get => notes;
+            get => _notes;
             set
             {
-                if (notes != value)
+                if (_notes != value)
                 {
-                    Log.log("PropertyChange.Notes");
-                    notes = value;
+                    Log.Info("PropertyChange.Notes");
+                    _notes = value;
                     OnPropertyChanged(nameof(Notes));
                 }
             }
@@ -182,166 +172,133 @@ namespace Win_Labs
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            Log.log("Save.Called");
+            Log.Info($"Save.Called - Property changed: {propertyName}");
             Save();
         }
 
         public void Save()
         {
-            if (renaming == true) { return; }
-            PlaylistFolderPath = StartupWindow.playlistFolderPath; // is called here again as this method is called before the setter.
+            if (_renaming) return;
 
-            if (string.IsNullOrEmpty(PlaylistFolderPath) == false)
+            if (string.IsNullOrEmpty(PlaylistFolderPath))
             {
-                CueManager.SaveCueToFile(this, PlaylistFolderPath);
-                Log.log("Saved");
+                Log.Warning("Not Saved - PlaylistFolderPath is empty or null.");
+                return;
             }
-            else
-            {
-                Log.log("Not Saved");
-                Log.log("String.IsNullOrEmpty(PlaylistFolderPath)" + " = True");
-                Log.log("PlayslistFolderPath = " + PlaylistFolderPath);
-            }
+
+            CueManager.SaveCueToFile(this, PlaylistFolderPath);
+            Log.Info("Saved successfully.");
         }
 
         private bool CheckForDuplicateCueFile(float newCueNumber)
         {
-            if (CueManager.startUpFinished == false)
+            if (!CueManager.StartupFinished)
             {
-                Log.log("In startup mode duplicate check skiped.");
+                Log.Info("In startup mode - Duplicate check skipped.");
                 return true;
             }
-            // Construct the new file path for the cue
-            string fileName = $"cue_{newCueNumber}.json";
-            string newFilePath = Path.Combine(PlaylistFolderPath, fileName);
 
-            // Check if the new file already exists
-            if (File.Exists(newFilePath) == true)
+            string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
+
+            if (!Directory.Exists(PlaylistFolderPath))
             {
-                Log.log("Duplicate file found: " + newFilePath);
-                var result = MessageBox.Show(
-                    $"A cue with the number {newCueNumber} already exists. Do you want to replace it?",
-                    "File Already Exists",
-                    MessageBoxButton.YesNo,
+                Log.Warning($"Playlist folder does not exist: {PlaylistFolderPath}");
+                MessageBox.Show(
+                    $"The playlist folder '{PlaylistFolderPath}' is missing. Please verify the location.",
+                    "Folder Not Found",
+                    MessageBoxButton.OK,
                     MessageBoxImage.Warning
                 );
-                if (result == MessageBoxResult.Yes) { Log.log("UserInput.Yes"); } else { Log.log("UserInput.No"); }
-                return result == MessageBoxResult.Yes; // If user confirms, proceed
+                return false;
             }
-            Log.log("No duplicate found, proceed");
+            if (File.Exists(newFilePath))
+            {
+                Log.Warning($"Duplicate file found: {newFilePath}");
+
+                // Prompt user for action
+                var result = MessageBox.Show(
+                    $"A cue with the number {newCueNumber} already exists. Do you want to replace it or skip this operation?",
+                    "File Conflict",
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Warning
+                );
+
+                switch (result)
+                {
+                    case MessageBoxResult.Cancel:
+                        Log.Info("User canceled the operation.");
+                        return false;
+
+                    case MessageBoxResult.No:
+                        Log.Info("User chose to skip the replacement.");
+                        return false;
+
+                    case MessageBoxResult.Yes:
+                        try
+                        {
+                            File.Delete(newFilePath);
+                            Log.Info($"Existing file deleted: {newFilePath}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error($"Error deleting existing file '{newFilePath}': {ex.Message}");
+                            MessageBox.Show(
+                                $"Could not delete the existing file '{newFilePath}'. Check file permissions or try again.",
+                                "Delete Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error
+                            );
+                            return false;
+                        }
+                        break;
+                }
+            }
+
+            Log.Info("No duplicate file found. Proceeding.");
             return true;
         }
 
-        private string MaskFilePath(string filePath)
-        {
-            // Define a maximum length for the visible part of the path
-            const int maxVisibleLength = 20;
-
-            // Check if the filePath is longer than the maximum visible length
-            if (filePath.Length > maxVisibleLength)
-            {
-                // Extract the leading part, the directory part, and the ending part of the path
-                string directoryPart = Path.GetDirectoryName(filePath);
-                string fileName = Path.GetFileName(filePath);
-
-                // Mask the directory part
-                string maskedDirectoryPart = MaskPathPart(directoryPart, maxVisibleLength);
-
-                // Combine the masked directory part and file name
-                return $"{maskedDirectoryPart}\\{fileName}";
-            }
-            return filePath; // Return the path as is if it's within the visible length
-        }
-
-        private string MaskPathPart(string pathPart, int maxVisibleLength)
-        {
-            // Check if the part is already short enough
-            if (pathPart.Length <= maxVisibleLength)
-            {
-                return pathPart;
-            }
-
-            // Find the last directory separator in the path part
-            int lastSeparatorIndex = pathPart.LastIndexOf(Path.DirectorySeparatorChar);
-
-            // Handle case where there's no separator (whole path is the file name)
-            if (lastSeparatorIndex == -1)
-            {
-                // Ensures no out-of-range exception
-                int visibleLength = Math.Min(maxVisibleLength, pathPart.Length);
-                return $"...{pathPart.Substring(Math.Max(0, pathPart.Length - visibleLength))}";
-            }
-
-            // Calculate the starting index and the length of the visible part
-            int startIndex = Math.Max(0, lastSeparatorIndex + 1);
-            int length = Math.Min(maxVisibleLength, pathPart.Length - startIndex);
-            string visiblePart = pathPart.Substring(startIndex, length);
-
-            return $"...\\{visiblePart}";
-        }
-
-        public static string oldFilePath;
-        public static string newFilePath;
 
         private void RenameCueFile(float oldCueNumber, float newCueNumber)
         {
-            if (CueManager.startUpFinished == false)
+            if (!CueManager.StartupFinished)
             {
-                Log.log("In startup mode Rename skiped.");
+                Log.Info("In startup mode - Rename skipped.");
                 return;
             }
-            renaming = true;
-            // Construct file paths
-            oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
-            newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
-            // Verify the PlaylistFolderPath
-            if (!Directory.Exists(PlaylistFolderPath))
-            {
-                Log.log($"Playlist folder does not exist: {PlaylistFolderPath}");
-                return;
-            }
+            _renaming = true;
+
+            string oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
+            string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
             try
             {
-                Log.log($"Attempting to rename file from {MaskFilePath(oldFilePath)} to {MaskFilePath(newFilePath)}");
+                if (File.Exists(newFilePath))
+                {
+                    Log.Warning($"File already exists at {newFilePath}. Deleting the existing file.");
+                    File.Delete(newFilePath);
+                }
 
-                // Check if the old file exists
                 if (File.Exists(oldFilePath))
                 {
-                    // Rename the file
-                    File.Move(oldFilePath, newFilePath, true);
-                    Log.log("New file made");
-                    // Delete old file
-                    File.Delete(oldFilePath);
-                    Log.log("Old file delted");
-                    // Update _cueFilePath to the new file path
+                    File.Move(oldFilePath, newFilePath);
                     _cueFilePath = newFilePath;
-
-                    // Mask paths before logging
-                    string maskedOldFilePath = MaskPathPart(oldFilePath, 40); // Adjust max visible length as needed
-                    string maskedNewFilePath = MaskPathPart(newFilePath, 40); // Adjust max visible length as needed
-                    // Log success
-                    Log.log($"Cue file renamed successfully from {maskedOldFilePath} to {maskedNewFilePath}");
-                    Log.log("Rename.Sucess");
+                    Log.Info($"Cue file renamed successfully from {oldFilePath} to {newFilePath}");
                 }
                 else
                 {
-                    // Log if the old file is not found
-                    Log.log($"Old cue file not found: {MaskPathPart(oldFilePath, 40)}", Log.LogLevel.Error);
+                    Log.Warning($"Old cue file not found: {oldFilePath}");
                 }
             }
             catch (Exception ex)
             {
-                // Log any exceptions that occur
-                Log.log($"Error renaming file from {oldFilePath} to {newFilePath}: {ex.Message}");
+                Log.Error($"Error renaming file: {ex.Message}");
             }
-            renaming = false;
-        }
-
-        public void SetFilePath(string filePath)
-        {
-            _cueFilePath = filePath;
+            finally
+            {
+                _renaming = false;
+            }
         }
     }
 }

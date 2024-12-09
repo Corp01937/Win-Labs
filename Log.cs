@@ -1,81 +1,84 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Win_Labs
 {
     public static class Log
     {
-        private static readonly string logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
-        private static readonly string logFileName = $"log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt"; // Log file with date and time
-        private static readonly string logFilePath = Path.Combine(logDirectory, logFileName);
-        private static readonly int maxLogFiles = 10; // Keep only the last 10 log files
+        private static readonly string LogDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+        private static readonly string LogFilePath = Path.Combine(LogDirectory, $"log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt");
+        private const int MaxLogFiles = 10;
 
-        public static void logFile()
+        static Log()
         {
-            if (!Directory.Exists(logDirectory))
-            {
-                Directory.CreateDirectory(logDirectory);
-                log($"Log Directory created at: {logDirectory}");
-            }
-            // Ensure the log file exists
-            if (!File.Exists(logFilePath))
-            {
-                File.Create(logFilePath).Dispose();
-                log($"Log File created at: {logFilePath}");
-            }
-            // Initialize the log file
-            File.AppendAllText(logFilePath, $"Log started at {DateTime.Now}\n");
-
-            // Remove old log files if more than 10 exist
+            InitializeLogDirectory();
             CleanUpOldLogFiles();
         }
 
-        // Method to clean up old log files, keeping only the last "maxLogFiles"
+        // Public logging methods
+        public static void Info(string message) => WriteLog(message, LogLevel.Info);
+
+        public static void Warning(string message) => WriteLog(message, LogLevel.Warning);
+
+        public static void Error(string message) => WriteLog(message, LogLevel.Error);
+
+        public static void Exception(Exception ex)
+        {
+            var exceptionMessage = $"Exception: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            WriteLog(exceptionMessage, LogLevel.Error);
+        }
+
+        // Private helper methods
+        private static void InitializeLogDirectory()
+        {
+            if (!Directory.Exists(LogDirectory))
+            {
+                Directory.CreateDirectory(LogDirectory);
+                WriteLog($"Log directory created at: {LogDirectory}", LogLevel.Info);
+            }
+        }
+
         private static void CleanUpOldLogFiles()
         {
-            var logFiles = Directory.GetFiles(logDirectory, "log_*.txt")
-                                    .OrderByDescending(f => File.GetCreationTime(f))
-                                    .Skip(maxLogFiles)
-                                    .ToList();
+            var oldFiles = Directory.GetFiles(LogDirectory, "log_*.txt")
+                                    .OrderByDescending(File.GetCreationTime)
+                                    .Skip(MaxLogFiles);
 
-            foreach (var oldLogFile in logFiles)
+            foreach (var file in oldFiles)
             {
                 try
                 {
-                    File.Delete(oldLogFile);
+                    File.Delete(file);
+                    WriteLog($"Deleted old log file: {file}", LogLevel.Info);
                 }
                 catch (Exception ex)
                 {
-                    log($"Error deleting old log file {oldLogFile}: {ex.Message}", Log.LogLevel.Error);
+                    WriteLog($"Failed to delete old log file {file}: {ex.Message}", LogLevel.Error);
                 }
             }
         }
 
-        public static void log(string message, LogLevel level = LogLevel.Info)
+        private static void WriteLog(string message, LogLevel level)
         {
+            var logMessage = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{level}] {message}";
+
             try
             {
-                var logMessage = $"{DateTime.Now:yy-MM-dd HH:mm:ss} [{level}] {message}";
                 Console.WriteLine(logMessage);
-                File.AppendAllText(logFilePath, logMessage + Environment.NewLine);
+                File.AppendAllText(LogFilePath, logMessage + Environment.NewLine);
             }
             catch (Exception ex)
             {
-                // Handle exceptions related to logging
-                Console.WriteLine($"ERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nLogging failed: {ex.Message} \nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR\nERROR");
+                Console.WriteLine($"Failed to write log: {ex.Message}");
             }
         }
 
-        public static void logException(Exception ex)
-        {
-            log($"Exception: {ex.Message}\n{ex.StackTrace}", LogLevel.Error);
-        }
-
+        // Enum for log levels
         public enum LogLevel
         {
             Info,
             Warning,
-            Error,
-            UhOh
+            Error
         }
     }
 }

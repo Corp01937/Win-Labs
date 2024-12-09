@@ -6,63 +6,54 @@ namespace Win_Labs
 {
     internal class export
     {
-        public static string playlistFolderPath = StartupWindow.playlistFolderPath;
-
-        public static void createZIP(string playlistExportFolderPath)
+        public static void createZIP(string playlistFolderPath, string playlistExportFolderPath)
         {
-            string playlistName = playlistFolderPath.Split(@"\")[^1] + ".zip";
-            Log.log("File name set to: " + playlistName);
-            var zipFile = playlistExportFolderPath + "\\" + playlistName;
-            Log.log($"Export File Path: {zipFile}");
+            string playlistName = Path.GetFileName(playlistFolderPath) + ".zip";
+            Log.Info("File name set to: " + playlistName);
+            var zipFile = Path.Combine(playlistExportFolderPath, playlistName);
+            Log.Info($"Export File Path: {zipFile}");
+
             if (string.IsNullOrEmpty(playlistFolderPath))
             {
-                Log.log("Playlist folder path is not set.");
+                Log.Warning("Playlist folder path is not set.");
                 return;
             }
+
             if (!Directory.Exists(playlistExportFolderPath))
             {
                 Directory.CreateDirectory(playlistExportFolderPath);
-                Log.log("Created Export folder as it did not exist.");
+                Log.Info("Created export folder as it did not exist.");
             }
+
             try
             {
-                bool overwrite = false;
-                if (File.Exists(zipFile) == true)
+                if (File.Exists(zipFile))
                 {
                     var result = MessageBox.Show(
-                        "File with same name detected. Overwrite?",
+                        "File with the same name detected. Overwrite?",
                         "Overwrite File?",
                         MessageBoxButton.OKCancel,
-                        MessageBoxImage.Warning,
-                        MessageBoxResult.Cancel
-                    );
-                    if (result == MessageBoxResult.Cancel) { Log.log("UserInput.Cancel"); } else { Log.log("UserInput.Ok"); overwrite = true; }
-                }
-                if (overwrite == false)
-                {
-                    System.IO.Compression.ZipFile.CreateFromDirectory(playlistFolderPath, zipFile, CompressionLevel.Fastest, false);
-                    Log.log($"File created: {zipFile}");
-                }
-                else
-                {
-                    if (File.Exists(zipFile) == true)
+                        MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Cancel)
                     {
-                        File.Delete(zipFile);
+                        Log.Info("User canceled the overwrite.");
+                        return;
                     }
-                    System.IO.Compression.ZipFile.CreateFromDirectory(playlistFolderPath, zipFile, CompressionLevel.Fastest, false);
-                    Log.log($"File overwrite: {zipFile}");
+
+                    File.Delete(zipFile);
+                    Log.Info("Existing file deleted.");
                 }
-                Log.log($"{zipFile} Created.");
+
+                System.IO.Compression.ZipFile.CreateFromDirectory(playlistFolderPath, zipFile, CompressionLevel.Fastest, false);
+                Log.Info($"File created: {zipFile}");
+                MessageBox.Show("Playlist exported successfully.", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                Log.logException(ex);
-                MessageBox.Show(
-                    $"Could not create file {zipFile}. Please check location and or if there is already a file with the same name as your playlist."
-                    , "File Creation Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning
-                    );
+                Log.Error($"Error creating ZIP file: {ex.Message}");
+                MessageBox.Show($"Could not create file {zipFile}. Please check the location or file permissions.",
+                    "File Creation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }
