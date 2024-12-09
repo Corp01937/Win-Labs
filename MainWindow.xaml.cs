@@ -1,408 +1,514 @@
-﻿using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
-using NAudio.Wave;
-
+using System.ComponentModel;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Win_Labs
 {
     public partial class MainWindow : Window
     {
-        private readonly string _playlistFolderPath;
-        private readonly ObservableCollection<Cue> _cues = new ObservableCollection<Cue>();
-        private Cue _currentCue = new();
-        private string _currentCueFilePath;
+        private string _cueFilePath; // Declare the _cueFilePath variable
+        private string _playlistFolderPath;
+        private float CueNumber;
+        private WaveOutEvent? waveOut; // Nullable
+        private AudioFileReader? audioFileReader; // Nullable
+        public static List<Cue> _cueList = [];
+        private string DefaultCueFilePath => Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"resources\defaultCue.json");
+        private Cue _currentCue = new Cue();
+        private bool ShowMode;
+        private float CueNumberSelected = 0;
+        private ObservableCollection<Cue> _cues = new ObservableCollection<Cue>();
 
         public MainWindow(string playlistFolderPath)
         {
             InitializeComponent();
-
+            Log.log("MainWindow.Initialized");
             _playlistFolderPath = playlistFolderPath;
+            Log.log($"Playlist Folder Path: {_playlistFolderPath}");
             CueListView.ItemsSource = _cues;
-
-            Initialize();
-            Log.Info("Application started.");
-;
-        }
-
-        private void Initialize()
-        {
-            Log.Info("Initializing application...");
             LoadCues();
-            BindCue(_currentCue);
-            SetupCueChangeHandler();
             InitializeCueData();
+            Log.log("CueData.Initialized");
+            DataContext = _currentCue;
+            Log.log("UI.Binded_To.Cue");
+            _currentCue.PropertyChanged += CurrentCue_PropertyChanged;
         }
+
+        private void CurrentCue_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (sender is Cue cue)
+            {
+                if (e.PropertyName == nameof(cue.CueNumber))
+                {
+                    if (cue.CueNumber > 0)
+                    {
+                        string filePath = Path.Combine(_playlistFolderPath, $"cue_{cue.CueNumber}.json");
+                        cue.SetFilePath(filePath);
+                        CueManager.SaveCueToFile(cue, _playlistFolderPath);
+                    }
+                }
+            }
+        }
+
         private void InitializeCueData()
         {
             try
             {
-                // Check if any cues exist in the playlist folder
-                if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
+                // Set the file path for the current selected cue or default cue
+                string cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{CueNumberSelected}.json");
+
+                if (CueManager.validJsonFileInPlaylist == false)
                 {
-                    Log.Info("No cues found. Creating a default cue.");
-
-                    // Create a default cue
-                    var defaultCue = CueManager.CreateNewCue(0, _playlistFolderPath);
-                    _cues.Add(defaultCue);
-
-                    // Save the default cue
-                    CueManager.SaveCueToFile(defaultCue, _playlistFolderPath);
-
-                    Log.Info("Default cue created successfully.");
+                    if (!File.Exists(cueFilePath))
+                    {
+                        // Log and copy default cue file if not exists
+                        Log.log($"Cue file not found at {cueFilePath}. Copying default cue file.", Log.LogLevel.Warning);
+                        CopyDefaultCueFile(cueFilePath);
+                        LoadCues();
+                    }
+                }
+                else
+                {
+                    Log.log("A valid file was found in the playlist default cue not coppied", Log.LogLevel.Warning);
                 }
 
-                // Load cues from the folder
-                LoadCues();
+                // Set _cueFilePath for the current cue
+                _cueFilePath = cueFilePath;
+
+                if (CueManager.validJsonFileInPlaylist == true)
+                {
+                    // Load the cue data
+                    LoadCueData();
+                }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error initializing cue data: {ex.Message}");
+                Log.log($"Error initializing cue data: {ex.Message}");
                 MessageBox.Show($"Error initializing cue data: {ex.Message}", "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-
-        private void LoadCues()
+        private void CopyDefaultCueFile(string destinationPath)
         {
-            var cues = CueManager.LoadCues(_playlistFolderPath);
-            foreach (var cue in cues)
+            try
             {
-                cue.PlaylistFolderPath = _playlistFolderPath; // Ensure each cue has the correct path
+                Log.log("DefaultCueFilePath: " + DefaultCueFilePath);
+                Log.log("DestinationPath: " + destinationPath);
+
+                if (!Directory.Exists(_playlistFolderPath))
+                {
+                    Directory.CreateDirectory(_playlistFolderPath);
+                }
+
+                if (File.Exists(DefaultCueFilePath))
+                {
+                    File.Copy(DefaultCueFilePath, destinationPath, true);
+                    Log.log("Default cue file copied to " + destinationPath);
+                }
+                else
+                {
+                    MessageBox.Show("Default cue file not found.", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Log.log("Default cue file not found at " + DefaultCueFilePath);
+                }
             }
-            CueListView.ItemsSource = cues;
-        }
-
-
-        private void BindCue(Cue cue)
-        {
-            DataContext = cue;
-            _currentCue = cue;
-        }
-
-        private void SetupCueChangeHandler()
-        {
-            _currentCue.PropertyChanged += OnCurrentCuePropertyChanged;
-        }
-
-        private void OnCurrentCuePropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(Cue.CueNumber))
+            catch (Exception ex)
             {
-                SaveCueData(_currentCue);
+                MessageBox.Show($"Error copying default cue file: {ex.Message}", "File Copy Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Log.log("Error copying default cue file: " + ex.Message);
             }
         }
 
-        private void SaveCueData(Cue cue)
+        private void GoButton_Click(object sender, RoutedEventArgs e)
         {
-            CueManager.SaveCueToFile(cue, _playlistFolderPath);
+            MessageBox.Show("Add functionality");
+            //Log.log("NAudio.Play");
+            //var openFileDialog = new OpenFileDialog
+            //{
+            //    Filter = "Audio files (*.mp3;*.wav)|*.mp3;*.wav"
+            //};
+            ////wakatime test
+
+            //Log.log("Dialog.Attempted");
+
+            //if (openFileDialog.ShowDialog() == true)
+            //{
+            //    Log.log("Succeeded");
+            //    try
+            //    {
+            //        CleanupAudio();
+
+            //        audioFileReader = new AudioFileReader(openFileDialog.FileName);
+            //        waveOut = new WaveOutEvent();
+
+            //        if (waveOut != null && audioFileReader != null)
+            //        {
+            //            waveOut.Init(audioFileReader);
+            //            waveOut.Play();
+            //            CurrentTrack.Text = $"Playing: {Path.GetFileName(openFileDialog.FileName)}";
+            //            Log.log("Success");
+            //        }
+            //        else
+            //        {
+            //            MessageBox.Show("Error initializing audio playback.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //            Log.log("Error.Playback");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show($"Error playing the track: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            //        Log.log("Error.Playing");
+            //    }
+            //}
         }
+
+        private void CleanupAudio()
+        {
+            waveOut?.Dispose();
+            audioFileReader?.Dispose();
+            waveOut = null;
+            audioFileReader = null;
+            CurrentTrack.Text = "No Track Selected";
+            Log.log("NAudio.Dispose_Complete");
+        }
+
+        private void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            waveOut?.Pause();
+            Log.log("NAudio.Paused");
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            waveOut?.Stop();
+            CleanupAudio();
+            Log.log("NAudio.Stopped");
+        }
+
+        private void EditModeToggle_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("EditModeToggle.Toggled");
+            if (EditModeToggle.IsChecked == true)
+            {
+                EditModeToggle.Content = "Show Mode";
+                ShowMode = true;
+                Log.log("Show Mode");
+            }
+            else
+            {
+                EditModeToggle.Content = "Edit Mode";
+                ShowMode = false;
+                Log.log("Edit Mode");
+            }
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            Log.log("Close.Detected");
+            Log.log("Propting for confirmation");
+
+            var result = MessageBox.Show(
+                "Are you sure you want to close the program",
+                "Have you saved tho??",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (result == MessageBoxResult.No) { Log.log("UserInput.No"); e.Cancel = true; ; }
+            else
+            {
+                Log.log("UserInput.yes");
+                Log.log("Closing");
+                Log.log("Attemping to clean up audio player");
+                CleanupAudio();
+                Log.log("Trying to save all cue data");
+                SaveAllCues();
+                Log.log("Closed");
+            }
+        }
+
+        public void SaveAllCues()
+        {
+            foreach (var cue in _cues)
+            {
+                SaveCueToFile(cue);
+            }
+            Log.log("All cues saved.");
+        }
+
+        private void SaveCueToFile(Cue cue)
+        {
+            _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{cue.CueNumber}.json");
+
+            try
+            {
+                if (!Directory.Exists(_playlistFolderPath))
+                {
+                    Directory.CreateDirectory(_playlistFolderPath);
+                }
+
+                cue.PlaylistFolderPath = _playlistFolderPath; // Set PlaylistFolderPath
+
+                string fileName = $"cue_{cue.CueNumber}.json";
+                string filePath = Path.Combine(_playlistFolderPath, fileName);
+
+                string json = JsonConvert.SerializeObject(cue, Formatting.Indented);
+                File.WriteAllText(filePath, json);
+
+                Log.log($"Cue {cue.CueNumber} saved successfully to {filePath}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving cue {cue.CueNumber}: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Log.log($"Error saving cue {cue.CueNumber}: {ex.Message}");
+            }
+        }
+
+        private void SaveCueData(float cueNumber)
+        {
+            _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{cueNumber}.json");
+
+            var cue = _cues.FirstOrDefault(c => c.CueNumber == cueNumber);
+            if (cue != null)
+            {
+                Log.log($"Saving cue data for cue number {cueNumber} to {_cueFilePath}");
+                CueManager.SaveCueToFile(cue, _playlistFolderPath);
+            }
+            else
+            {
+                Log.log($"No cue found with number {cueNumber}");
+            }
+        }
+
+        private void LoadCueData()
+        {
+            _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{CueNumberSelected}.json");
+
+            Log.log("Attempting to load data");
+            try
+            {
+                if (File.Exists(_cueFilePath))
+                {
+                    Log.log($"File exists at {_cueFilePath}");
+                    string rawJSON = File.ReadAllText(_cueFilePath);
+                    Cue loadedCue = JsonConvert.DeserializeObject<Cue>(rawJSON);
+
+                    _currentCue = loadedCue ?? new Cue();
+                    Log.log("Data loaded successfully");
+                }
+                else
+                {
+                    _currentCue = new Cue();
+                    Log.log("File does not exist, new Cue created");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading data: {ex.Message}", "Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _currentCue = new Cue();
+                Log.log($"Error loading data: {ex.Message}");
+            }
+        }
+
+        public void LoadCues()
+        {
+            _cues = CueManager.LoadCues(_playlistFolderPath);
+            CueListView.ItemsSource = _cues;
+        }
+
+        //private void UnloadCues()
+        //{
+        //    _cues = CueManager.UnloadCues(_playlistFolderPath);
+        //    CueListView.ItemsSource = _cues;
+        //}
 
         private void CueListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (CueListView.SelectedItem is Cue selectedCue)
             {
-                BindCue(selectedCue);
+                // Update the DataContext with the selected cue
+                DataContext = selectedCue;
+
+                // Initialize _cueFilePath when a cue is selected
+                _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{selectedCue.CueNumber}.json");
+                Log.log($"Cue selected: {selectedCue.CueNumber}, file path: {_cueFilePath}");
             }
         }
+
+        private void DeleteCue_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("DeleteCue.ToolbarButton");
+            DeleteCue();
+        }
+
+        private void CreateNewCue()
+        {
+            // Pass the _playlistFolderPath when creating a Cue instance
+            Cue newCue = new Cue(_playlistFolderPath)
+            {
+                PlaylistFolderPath = _playlistFolderPath,
+                CueNumber = _cues.Count, // This will be the new cue number
+                CueName = "New Cue",
+                Duration = "00:00",
+                PreWait = "00:00",
+                PostWait = "00:00",
+                AutoFollow = false,
+                FileName = "",
+                TargetFile = "",
+                Notes = ""
+            };
+
+            // Add the new cue to the collection
+            _cues.Add(newCue);
+            CueListView.SelectedItem = newCue;
+            DataContext = newCue;
+
+            // Initialize _cueFilePath using the new cue's CueNumber
+            _cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{newCue.CueNumber}.json");
+            //// Rename the file
+            //File.Move(newCue, $"cue_{newCue.CueNumber}.json", true);
+            //Log.log("New file made");
+            //// Delete old file
+            //File.Delete(oldFilePath);
+            //Log.log("Old file delted");
+            //// Update _cueFilePath to the new file path
+            //_cueFilePath = newFilePath;
+
+            // Save the new cue
+            CueManager.SaveCueToFile(newCue, _playlistFolderPath);
+            CreatingNewCue = false;
+        }
+
+        public static bool CreatingNewCue;
 
         private void CreateNewCue_Click(object sender, RoutedEventArgs e)
         {
-            // Calculate the next cue number based on the current count of cues
-            int newCueNumber = _cues.Count;
-
-            // Use CueManager to create the new cue
-            var newCue = CueManager.CreateNewCue(newCueNumber, _playlistFolderPath);
-
-            // Add the new cue to the ObservableCollection
-            _cues.Add(newCue);
-
-            // Set it as the currently selected cue in the UI
-            CueListView.SelectedItem = newCue;
-
-            // Update the DataContext for the UI binding
-            DataContext = newCue;
-
-            // Log the creation
-            Log.Info($"Created a new cue: {newCue.CueNumber}");
+            Log.log("Creating new cue");
+            CreatingNewCue = true;
+            CreateNewCue();
         }
-
 
         private void DeleteSelectedCue_Click(object sender, RoutedEventArgs e)
         {
+            Log.log("DeleteCue.ContextMenu");
+            DeleteCue();
+        }
+
+        private void DeleteCue()
+        {
             if (CueListView.SelectedItem is Cue selectedCue)
             {
+                Log.log("DeleteSelectedCue_Click.Attempted");
+
+                string cueFilePath = Path.Combine(_playlistFolderPath, $"cue_{selectedCue.CueNumber}.json");
+
+                DeleteFileIfExists(cueFilePath);
+
                 _cues.Remove(selectedCue);
-                CueManager.DeleteCueFile(selectedCue, _playlistFolderPath);
+
+                DataContext = _cues.FirstOrDefault() ?? new Cue();
             }
             else
             {
-                MessageBox.Show("Please select a cue to delete.", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("No cue selected to delete.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void SaveAllCues_Click(object sender, RoutedEventArgs e)
+        private void DeleteFileIfExists(string filePath)
         {
-            foreach (var cue in _cues)
+            if (File.Exists(filePath))
             {
-                CueManager.SaveCueToFile(cue, _playlistFolderPath);
-            }
-        }
-
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Refreshing playlist...");
-            InitializeCueData();
-        }
-
-        private void EditModeToggle_Click(object sender, RoutedEventArgs e)
-        {
-            // Toggle edit mode
-            if (EditModeToggle.IsChecked == true)
-            {
-                EditModeToggle.Content = "Show Mode";
-                Log.Info("Switched to Show Mode");
+                try
+                {
+                    File.Delete(filePath);
+                    Log.log($"File deleted: {filePath}");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to delete file {filePath}: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Log.log("File.Fail_Delete");
+                }
             }
             else
             {
-                EditModeToggle.Content = "Edit Mode";
-                Log.Info("Switched to Edit Mode");
+                Log.log($"File does not exist: {filePath}");
             }
+        }
+
+        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("Save.Clicked");
+            CueManager.SaveAllCues(_cues, _playlistFolderPath);
+        }
+
+        private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("Export.Clicked");
+            var folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                Log.log("Dialog.Opened");
+                string playlistExportFolderPath = folderDialog.SelectedPath;
+                Log.log("Selected Export Path: " + playlistExportFolderPath);
+                export.createZIP(playlistExportFolderPath);
+            }
+        }
+
+        private void ImportMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("Import.Clicked");
+            // Implement import logic here.
+        }
+
+        private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.log("Close.Clicked");
+            Log.log("Starting Close Protocol");
+            SaveAllCues();
+            Log.log("Closing.Window");
+            this.Close();
         }
 
         private void SelectTargetFile_Click(object sender, RoutedEventArgs e)
         {
-            Log.Info("Selecting target file...");
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            Log.log("SelectTargetFile.Clicked");
+            SelectTargetFile();
+        }
+
+        public void SelectTargetFile()
+        {
+            var openFileDialog = new OpenFileDialog
             {
                 Filter = "Audio Files|*.mp3;*.wav;*.flac|All Files|*.*"
             };
 
             if (openFileDialog.ShowDialog() == true)
             {
-                Log.Info($"File selected: {openFileDialog.FileName}");
-            }
-        }
-
-        private void DeleteCue_Click(object sender, RoutedEventArgs e)
-        {
-            if (CueListView.SelectedItem is Cue selectedCue)
-            {
-                Log.Info($"Delete Cue button clicked. Deleting Cue: {selectedCue.CueNumber} - {selectedCue.CueName}");
-                var confirmation = MessageBox.Show($"Are you sure you want to delete Cue {selectedCue.CueNumber}?",
-                                                   "Confirm Delete",
-                                                   MessageBoxButton.YesNo,
-                                                   MessageBoxImage.Warning);
-
-                if (confirmation == MessageBoxResult.Yes)
+                if (CueListView.SelectedItem is Cue selectedCue)
                 {
-                    // Remove cue from collection
-                    _cues.Remove(selectedCue);
-
-                    // Delete the file
-                    CueManager.DeleteCueFile(selectedCue, _playlistFolderPath);
-                    Log.Info($"Cue {selectedCue.CueNumber} deleted successfully.");
+                    string fileNameWoutextention = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                    selectedCue.TargetFile = openFileDialog.FileName;
+                    selectedCue.FileName = fileNameWoutextention;
+                    DataContext = selectedCue;
+                    CueManager.SaveCueToFile(selectedCue, _playlistFolderPath);
+                    Log.log($"'{openFileDialog.FileName}' added to {CueListView.SelectedItem}");
                 }
-            }
-            else
-            {
-                MessageBox.Show("No cue selected to delete.", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Log.Warning("Delete Cue button clicked with no selection.");
-            }
-        }
-        private WaveOutEvent? waveOut; // For audio playback
-        private AudioFileReader? audioFileReader; // For reading audio files
-
-
-        private void StopButton_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Stop button clicked.");
-            try
-            {
-                waveOut?.Stop();
-                CleanupAudio();
-                Log.Info("Audio playback stopped.");
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error stopping playback: {ex.Message}");
-                MessageBox.Show($"Failed to stop playback: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void PauseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Pause button clicked.");
-            try
-            {
-                waveOut?.Pause();
-                Log.Info("Audio playback paused.");
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error pausing playback: {ex.Message}");
-                MessageBox.Show($"Failed to pause playback: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-        private void GoButton_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Go button clicked.");
-            if (CueListView.SelectedItem is Cue selectedCue && !string.IsNullOrEmpty(selectedCue.TargetFile))
-            {
-                try
+                else
                 {
-                    //if(Settings.GoButton__---- == true) 
-                    //{ 
-                    //CleanupAudio(); // Ensure no existing playback
-                    //}
-
-                    audioFileReader = new AudioFileReader(selectedCue.TargetFile);
-                    waveOut = new WaveOutEvent();
-                    waveOut.Init(audioFileReader);
-                    waveOut.Play();
-
-                    CurrentTrack.Text = $"Playing: {selectedCue.FileName}";
-                    Log.Info($"Playing Cue {selectedCue.CueNumber}: {selectedCue.TargetFile}");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error playing cue: {ex.Message}");
-                    MessageBox.Show($"Failed to play the cue: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            else
-            {
-                MessageBox.Show("No valid cue selected to play.", "Play Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                Log.Warning("Go button clicked with no valid cue selected.");
-            }
-        }
-        private void CleanupAudio()
-        {
-            // Dispose of the current audio playback resources if they exist
-            waveOut?.Dispose();
-            audioFileReader?.Dispose();
-
-            // Set fields to null to prepare for new playback
-            waveOut = null;
-            audioFileReader = null;
-
-            // Update UI if necessary
-            CurrentTrack.Text = "No Track Selected";
-            Log.Info("Audio resources cleaned up.");
-        }
-
-        private void ImportMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Import menu item clicked.");
-            var openFileDialog = new System.Windows.Forms.OpenFileDialog
-            {
-                Filter = "Zip files (*.zip)|*.zip",
-                Title = "Select the playlist to import."
-            };
-
-            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string importPath = openFileDialog.FileName;
-                var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-                {
-                    Description = "Select the folder to import the playlist into."
-                };
-
-                if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    string exportPath = folderDialog.SelectedPath;
-                    try
-                    {
-                        import.openZIP(importPath, exportPath);
-                        Log.Info($"Playlist imported successfully from {importPath} to {exportPath}.");
-                        LoadCues(); // Refresh cues
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error importing playlist: {ex.Message}");
-                        MessageBox.Show($"Failed to import playlist: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    MessageBox.Show("No cue selected. Please select a cue before choosing a target file.", "No Cue Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }
 
-
-        private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            Log.Info("Export menu item clicked.");
-            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-            {
-                Description = "Select a destination folder for the exported playlist."
-            };
+            Log.log("Saving");
+            SaveAllCues();
+            MessageBox.Show("Refresh feature in future update.");
+            //Log.log("Refreshing");
 
-            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string destinationPath = folderDialog.SelectedPath;
-                try
-                {
-                    export.createZIP(_playlistFolderPath, destinationPath);
-                    Log.Info($"Playlist exported successfully to {destinationPath}.");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error exporting playlist: {ex.Message}");
-                    MessageBox.Show($"Failed to export playlist: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-        }
-
-
-        private void SaveMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Save menu item clicked.");
-            try
-            {
-                CueManager.SaveAllCues(_cues, _playlistFolderPath);
-                Log.Info("All cues saved successfully.");
-                MessageBox.Show("All changes have been saved.", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"Error saving cues: {ex.Message}");
-                MessageBox.Show($"Failed to save changes: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-
-
-
-        private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            Log.Info("Closing application via menu.");
-            // Confirm with the user
-            var result = MessageBox.Show("Are you sure you want to close the application?", "Confirm Close", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                // Close the application
-                Application.Current.Shutdown();
-            }
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-
-            var result = MessageBox.Show("Save changes before closing?", "Confirm Exit", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                SaveAllCues_Click(this, new RoutedEventArgs());
-            }
-            else if (result == MessageBoxResult.Cancel)
-            {
-                e.Cancel = true;
-            }
+            //Log.log("Cues.Refreshed");
         }
     }
 }
