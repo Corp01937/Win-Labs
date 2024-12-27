@@ -87,14 +87,14 @@ namespace Win_Labs
 
         private void Duration_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is Cue cue)
+            if (sender is TextBox textBox && textBox.DataContext is Cue cue)
             {
                 cue.Duration_GotFocus();
             }
         }
         private void Duration_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is Cue cue)
+            if (sender is TextBox textBox && textBox.DataContext is Cue cue)
             {
                 cue.Duration_LostFocus();
             }
@@ -377,15 +377,15 @@ namespace Win_Labs
 
                 if (!string.IsNullOrWhiteSpace(selectedCue.Duration))
                 {
-                    // Try to parse duration as a TimeSpan (e.g., "hh:mm:ss:ff")
-                    if (TimeSpan.TryParse(selectedCue.Duration, out limitDuration) && limitDuration.TotalSeconds > 0)
+                    // Try to parse duration as a TimeSpan (e.g., "mm:ss.ff")
+                    if (TimeSpan.TryParseExact(selectedCue.Duration, @"mm\:ss\.ff", null, out limitDuration) && limitDuration.TotalMilliseconds > 0)
                     {
                         isDurationValid = true;
                     }
-                    // If not, try to parse as plain seconds (e.g., "120")
-                    else if (double.TryParse(selectedCue.Duration, out double durationInSeconds) && durationInSeconds > 0)
+                    // If not, try to parse as plain milliseconds (e.g., "120000")
+                    else if (double.TryParse(selectedCue.Duration, out double durationInMilliseconds) && durationInMilliseconds > 0)
                     {
-                        limitDuration = TimeSpan.FromSeconds(durationInSeconds);
+                        limitDuration = TimeSpan.FromMilliseconds(durationInMilliseconds);
                         isDurationValid = true;
                     }
                 }
@@ -414,6 +414,9 @@ namespace Win_Labs
                     Log.Warning($"Invalid or zero duration specified for cue {selectedCue.CueNumber}. Playing the full track.");
                     MessageBox.Show($"The duration '{selectedCue.Duration}' is invalid. The full track will be played.",
                                     "Invalid Duration", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    // Set the duration back to the audio file's length
+                    selectedCue.Duration = audioReader.TotalTime.ToString(@"mm\:ss\.ff");
                 }
 
                 newWaveOut.Play();

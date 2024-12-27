@@ -175,7 +175,7 @@
 
                 <!-- Duration -->
                 <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Text="Duration:" />
-                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" FocusManager.GotFocus="Duration_GotFocus" FocusManager.LostFocus="Duration_LostFocus"/>
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" GotFocus="Duration_GotFocus" LostFocus="Duration_LostFocus"/>
 
                 <!-- Pre Wait -->
                 <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Pre Wait:" />

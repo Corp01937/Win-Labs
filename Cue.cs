@@ -90,7 +90,7 @@ namespace Win_Labs
 
         public string Duration
         {
-            get => _displayedDuration ?? $"{(int)_totalDuration.TotalHours:D2}:{_totalDuration.Minutes:D2}:{_totalDuration.Seconds:D2}:{_totalDuration.Milliseconds / 10:D2}";
+            get => _displayedDuration ?? $"{_totalDuration.Minutes:D2}:{_totalDuration.Seconds:D2}:{_totalDuration.Milliseconds:D3}";
             set
             {
                 if (_isEditingDuration)
@@ -100,7 +100,7 @@ namespace Win_Labs
                     return;
                 }
 
-                if (TimeSpan.TryParseExact(value, @"hh\:mm\:ss\:ff", null, out TimeSpan parsedDuration))
+                if (TimeSpan.TryParseExact(value, @"mm\:ss\.ff", null, out TimeSpan parsedDuration))
                 {
                     _totalDuration = parsedDuration;
                     _displayedDuration = value;
