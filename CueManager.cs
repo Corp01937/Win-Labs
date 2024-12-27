@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using NAudio.Wave;
+using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows;
 
 namespace Win_Labs
 {
@@ -17,82 +19,58 @@ namespace Win_Labs
         public static ObservableCollection<Cue> LoadCues(string playlistFolderPath)
         {
             var cues = new ObservableCollection<Cue>();
-            Log.Info($"Starting to load cues from {playlistFolderPath}");
-
-            if (string.IsNullOrEmpty(playlistFolderPath) || !Directory.Exists(playlistFolderPath))
-            {
-                Log.Warning("Invalid playlist folder path.");
-                return cues;
-            }
-
-            var cueFiles = Directory.GetFiles(playlistFolderPath, "*.json");
-            Log.Info($"Found {cueFiles.Length} cue files.");
-
-            foreach (var file in cueFiles)
-            {
-                try
-                {
-                    var cue = DeserializeCue(file);
-                    if (cue != null)
-                    {
-                        cues.Add(cue);
-                        Log.Info($"Loaded cue from {MaskFilePath(file)}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error loading cue from {file}: {ex.Message}");
-                }
-            }
-
-            StartupFinished = true;
-            return cues;
-        }
-
-        public static Cue CreateNewCue(int cueNumber, string playlistFolderPath)
-        {
             if (string.IsNullOrEmpty(playlistFolderPath))
             {
                 Log.Warning("Playlist folder path is not set.");
-                throw new ArgumentException("Playlist folder path cannot be null or empty.");
+                return cues;
             }
+            var cueFiles = Directory.GetFiles(playlistFolderPath, "*.json");
+            Log.Info($"Found {cueFiles.Length} cue files.");
+            try
+            {
+                foreach (var file in Directory.EnumerateFiles(playlistFolderPath, "cue_*.json"))
+                {
+                    var cue = JsonConvert.DeserializeObject<Cue>(File.ReadAllText(file));
+                    cue.PlaylistFolderPath = playlistFolderPath;
+                    cues.Add(cue);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+            }
+            MarkStartupAsFinished();
+            return cues;
+        }
 
-            // Create a new cue object with default values
-            var newCue = new Cue
+
+        public static Cue CreateNewCue(int cueNumber, string playlistFolderPath)
+        {
+            return new Cue(playlistFolderPath)
             {
                 CueNumber = cueNumber,
                 PlaylistFolderPath = playlistFolderPath,
                 CueName = $"Cue {cueNumber}",
-                Duration = "00:00",
-                PreWait = "00:00",
-                PostWait = "00:00",
+                Duration = "00:00:00:00",
+                PreWait = "00:00:00:00",
+                PostWait = "00:00:00:00",
                 AutoFollow = false,
                 FileName = "",
                 TargetFile = "",
-                Notes = "Default Cue"
+                Notes = ""
             };
-
-            // Save the new cue to a file
-            SaveCueToFile(newCue, playlistFolderPath);
-
-            Log.Info($"New cue created: {newCue.CueName} with number {newCue.CueNumber}");
-            return newCue;
         }
 
-
-        public static void SaveCueToFile(Cue cue, string playlistFolderPath)
+        public static void SaveCueToFile(Cue cue, string folderPath)
         {
-            string filePath = Path.Combine(playlistFolderPath, $"cue_{cue.CueNumber}.json");
-            string json = JsonConvert.SerializeObject(cue, Formatting.Indented);
-
             try
             {
-                File.WriteAllText(filePath, json);
-                Log.Info($"Cue {cue.CueNumber} saved successfully to {filePath}");
+                string filePath = Path.Combine(folderPath, $"cue_{cue.CueNumber}.json");
+                File.WriteAllText(filePath, JsonConvert.SerializeObject(cue));
             }
             catch (Exception ex)
             {
-                Log.Error($"Failed to save cue {cue.CueNumber}: {ex.Message}");
+                Log.Exception(ex);
             }
         }
 
@@ -166,7 +144,19 @@ namespace Win_Labs
                 if (!File.Exists(filePath))
                 {
                     Log.Warning($"Cue file not found: {MaskFilePath(filePath)}");
-                    return new Cue(); // Return a default Cue if the file is missing
+
+                    // Ask the user whether they want to abort or create a default cue
+                    var result = MessageBox.Show("Cue file not found. Do you want to create a default cue?", "Cue File Missing", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.No)
+                    {
+                        return null; // Abort and return null if the user chooses not to create a default cue
+                    }
+                    else
+                    {
+                        return new Cue(); // Return a default Cue if the file is missing and the user chooses to create one
+                    }
+
                 }
 
                 var json = File.ReadAllText(filePath);
@@ -177,7 +167,7 @@ namespace Win_Labs
                     Log.Warning($"Failed to deserialize cue: JSON resulted in a null object from {MaskFilePath(filePath)}");
                     return new Cue(); // Return a default Cue if deserialization failed
                 }
-
+                Log.Info("Sucessfully DeserialisedCue");
                 return cue;
             }
             catch (JsonException jsonEx)

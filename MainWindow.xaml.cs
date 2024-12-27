@@ -7,6 +7,8 @@ using Microsoft.Win32;
 using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using NAudio.Wave;
+using System.Text;
+using System.Windows.Data;
 
 
 namespace Win_Labs
@@ -17,67 +19,60 @@ namespace Win_Labs
         private readonly ObservableCollection<Cue> _cues = new ObservableCollection<Cue>();
         private Cue _currentCue = new();
         private string _currentCueFilePath;
-
+        public event RoutedEventHandler GotFocus;
         public MainWindow(string playlistFolderPath)
         {
             InitializeComponent();
-
             _playlistFolderPath = playlistFolderPath;
             CueListView.ItemsSource = _cues;
-
             Initialize();
             Log.Info("Application started.");
-;
         }
 
         private void Initialize()
         {
             Log.Info("Initializing application...");
-            LoadCues();
             BindCue(_currentCue);
             SetupCueChangeHandler();
             InitializeCueData();
+            _activeWaveOuts = new List<WaveOutEvent>();
+            RefreshCueList();
         }
         private void InitializeCueData()
         {
             try
             {
-                // Check if any cues exist in the playlist folder
                 if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
                 {
                     Log.Info("No cues found. Creating a default cue.");
-
-                    // Create a default cue
                     var defaultCue = CueManager.CreateNewCue(0, _playlistFolderPath);
-                    _cues.Add(defaultCue);
-
-                    // Save the default cue
                     CueManager.SaveCueToFile(defaultCue, _playlistFolderPath);
-
                     Log.Info("Default cue created successfully.");
                 }
-
-                // Load cues from the folder
                 LoadCues();
             }
             catch (Exception ex)
             {
-                Log.Error($"Error initializing cue data: {ex.Message}");
-                MessageBox.Show($"Error initializing cue data: {ex.Message}", "Initialization Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Log.Exception(ex);
+            }
+            finally
+            {
+                RefreshCueList();
             }
         }
-
 
         private void LoadCues()
         {
-            var cues = CueManager.LoadCues(_playlistFolderPath);
-            foreach (var cue in cues)
+            Cue.IsInitializing = true;
+            var loadedCues = CueManager.LoadCues(_playlistFolderPath);
+            _cues.Clear();
+            foreach (var cue in loadedCues)
             {
-                cue.PlaylistFolderPath = _playlistFolderPath; // Ensure each cue has the correct path
+                _cues.Add(cue);
             }
-            CueListView.ItemsSource = cues;
+            RefreshCueList();
+            Cue.IsInitializing = false;
         }
-
 
         private void BindCue(Cue cue)
         {
@@ -90,17 +85,33 @@ namespace Win_Labs
             _currentCue.PropertyChanged += OnCurrentCuePropertyChanged;
         }
 
+        private void Duration_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is Cue cue)
+            {
+                cue.Duration_GotFocus();
+            }
+        }
+        private void Duration_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is Cue cue)
+            {
+                cue.Duration_LostFocus();
+            }
+        }
         private void OnCurrentCuePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Cue.CueNumber))
             {
                 SaveCueData(_currentCue);
             }
+            RefreshCueList();
         }
 
         private void SaveCueData(Cue cue)
         {
             CueManager.SaveCueToFile(cue, _playlistFolderPath);
+            RefreshCueList();
         }
 
         private void CueListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -109,6 +120,7 @@ namespace Win_Labs
             {
                 BindCue(selectedCue);
             }
+            RefreshCueList();
         }
 
         private void CreateNewCue_Click(object sender, RoutedEventArgs e)
@@ -130,8 +142,15 @@ namespace Win_Labs
 
             // Log the creation
             Log.Info($"Created a new cue: {newCue.CueNumber}");
+            RefreshCueList();
         }
 
+        private void RefreshCueList()
+        {
+            var selectedCue = CueListView.SelectedItem;
+            CollectionViewSource.GetDefaultView(CueListView.ItemsSource).Refresh();
+            CueListView.SelectedItem = selectedCue;
+        }
 
         private void DeleteSelectedCue_Click(object sender, RoutedEventArgs e)
         {
@@ -139,6 +158,7 @@ namespace Win_Labs
             {
                 _cues.Remove(selectedCue);
                 CueManager.DeleteCueFile(selectedCue, _playlistFolderPath);
+                RefreshCueList();
             }
             else
             {
@@ -158,6 +178,7 @@ namespace Win_Labs
         {
             Log.Info("Refreshing playlist...");
             InitializeCueData();
+            RefreshCueList();
         }
 
         private void EditModeToggle_Click(object sender, RoutedEventArgs e)
@@ -173,6 +194,7 @@ namespace Win_Labs
                 EditModeToggle.Content = "Edit Mode";
                 Log.Info("Switched to Edit Mode");
             }
+            RefreshCueList();
         }
 
         private void SelectTargetFile_Click(object sender, RoutedEventArgs e)
@@ -185,7 +207,19 @@ namespace Win_Labs
 
             if (openFileDialog.ShowDialog() == true)
             {
-                Log.Info($"File selected: {openFileDialog.FileName}");
+                if (CueListView.SelectedItem is Cue selectedCue)
+                {
+                    string fileNameWoutextention = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                    selectedCue.TargetFile = openFileDialog.FileName;
+                    selectedCue.FileName = fileNameWoutextention;
+                    DataContext = selectedCue;
+                    CueManager.SaveCueToFile(selectedCue, _playlistFolderPath);
+                    Log.Info($"'{openFileDialog.FileName}' added to {CueListView.SelectedItem}");
+                }
+                else
+                {
+                    MessageBox.Show("No cue selected. Please select a cue before choosing a target file.", "No Cue Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
             }
         }
 
@@ -207,6 +241,7 @@ namespace Win_Labs
                     // Delete the file
                     CueManager.DeleteCueFile(selectedCue, _playlistFolderPath);
                     Log.Info($"Cue {selectedCue.CueNumber} deleted successfully.");
+                    RefreshCueList();
                 }
             }
             else
@@ -214,6 +249,7 @@ namespace Win_Labs
                 MessageBox.Show("No cue selected to delete.", "Delete Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Log.Warning("Delete Cue button clicked with no selection.");
             }
+
         }
         private WaveOutEvent? waveOut; // For audio playback
         private AudioFileReader? audioFileReader; // For reading audio files
@@ -224,7 +260,6 @@ namespace Win_Labs
             Log.Info("Stop button clicked.");
             try
             {
-                waveOut?.Stop();
                 CleanupAudio();
                 Log.Info("Audio playback stopped.");
             }
@@ -234,65 +269,221 @@ namespace Win_Labs
                 MessageBox.Show($"Failed to stop playback: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        bool Paused = false;
 
         private void PauseButton_Click(object sender, RoutedEventArgs e)
         {
             Log.Info("Pause button clicked.");
             try
             {
-                waveOut?.Pause();
-                Log.Info("Audio playback paused.");
+                if (PauseButtonToggle.IsChecked == true) // Pause all
+                {
+                    Paused = true;
+                    PauseButtonToggle.Content = "Play";
+                    try
+                    {
+                        foreach (var waveOut in _activeWaveOuts)
+                        {
+                            if (waveOut.PlaybackState == PlaybackState.Playing)
+                            {
+                                waveOut.Pause();
+                                Log.Info($"Paused audio track: {waveOut.GetHashCode()}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Error pausing all audio: {ex.Message}");
+                        MessageBox.Show($"Failed to pause audio: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                else // Resume all
+                {
+                    Paused = false;
+                    PauseButtonToggle.Content = "Pause";
+                    try
+                    {
+                        foreach (var waveOut in _activeWaveOuts)
+                        {
+                            if (waveOut.PlaybackState == PlaybackState.Paused)
+                            {
+                                waveOut.Play();
+                                Log.Info($"Resumed audio track: {waveOut.GetHashCode()}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Error resuming all audio: {ex.Message}");
+                        MessageBox.Show($"Failed to resume audio: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error pausing playback: {ex.Message}");
-                MessageBox.Show($"Failed to pause playback: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Log.Error($"Error toggling playback: {ex.Message}");
+                MessageBox.Show($"Failed to toggle playback: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private List<WaveOutEvent> _activeWaveOuts = new List<WaveOutEvent>();
+        private Dictionary<WaveOutEvent, System.Timers.Timer> _playbackTimers = new();
+        private Dictionary<WaveOutEvent, AudioFileReader> _audioFileReaders = new();
 
         private void GoButton_Click(object sender, RoutedEventArgs e)
         {
-            Log.Info("Go button clicked.");
-            if (CueListView.SelectedItem is Cue selectedCue && !string.IsNullOrEmpty(selectedCue.TargetFile))
+            if (Paused)
             {
-                try
-                {
-                    //if(Settings.GoButton__---- == true) 
-                    //{ 
-                    //CleanupAudio(); // Ensure no existing playback
-                    //}
-
-                    audioFileReader = new AudioFileReader(selectedCue.TargetFile);
-                    waveOut = new WaveOutEvent();
-                    waveOut.Init(audioFileReader);
-                    waveOut.Play();
-
-                    CurrentTrack.Text = $"Playing: {selectedCue.FileName}";
-                    Log.Info($"Playing Cue {selectedCue.CueNumber}: {selectedCue.TargetFile}");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error playing cue: {ex.Message}");
-                    MessageBox.Show($"Failed to play the cue: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                Log.Warning("Cannot start new playback while paused.");
+                MessageBox.Show("Playback is currently paused. Resume before starting a new track.",
+                                "Action Blocked", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            else
+
+            Log.Info("Go button clicked.");
+
+            if (CueListView.SelectedItem is not Cue selectedCue || string.IsNullOrEmpty(selectedCue.TargetFile))
             {
                 MessageBox.Show("No valid cue selected to play.", "Play Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 Log.Warning("Go button clicked with no valid cue selected.");
+                return;
+            }
+
+            try
+            {
+                // Ensure TargetFile exists
+                if (!File.Exists(selectedCue.TargetFile))
+                {
+                    Log.Error($"Target file does not exist: {selectedCue.TargetFile}");
+                    MessageBox.Show($"The file {selectedCue.TargetFile} could not be found.", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                // Initialize playback components
+                var audioReader = new AudioFileReader(selectedCue.TargetFile);
+                var newWaveOut = new WaveOutEvent();
+                newWaveOut.Init(audioReader);
+
+                // Ensure collections are initialized
+                if (_activeWaveOuts == null) _activeWaveOuts = new List<WaveOutEvent>();
+                if (_playbackTimers == null) _playbackTimers = new Dictionary<WaveOutEvent, System.Timers.Timer>();
+                if (_audioFileReaders == null) _audioFileReaders = new Dictionary<WaveOutEvent, AudioFileReader>();
+
+                _audioFileReaders[newWaveOut] = audioReader;
+
+                // Validate and parse duration
+                bool isDurationValid = false;
+                TimeSpan limitDuration = TimeSpan.Zero;
+
+                if (!string.IsNullOrWhiteSpace(selectedCue.Duration))
+                {
+                    // Try to parse duration as a TimeSpan (e.g., "hh:mm:ss:ff")
+                    if (TimeSpan.TryParse(selectedCue.Duration, out limitDuration) && limitDuration.TotalSeconds > 0)
+                    {
+                        isDurationValid = true;
+                    }
+                    // If not, try to parse as plain seconds (e.g., "120")
+                    else if (double.TryParse(selectedCue.Duration, out double durationInSeconds) && durationInSeconds > 0)
+                    {
+                        limitDuration = TimeSpan.FromSeconds(durationInSeconds);
+                        isDurationValid = true;
+                    }
+                }
+
+                if (isDurationValid)
+                {
+                    Log.Info($"Playing Cue {selectedCue.CueNumber}: {selectedCue.TargetFile} for {limitDuration.TotalSeconds} seconds.");
+
+                    var playbackTimer = new System.Timers.Timer(limitDuration.TotalMilliseconds)
+                    {
+                        AutoReset = false // Trigger only once
+                    };
+
+                    playbackTimer.Elapsed += (s, args) =>
+                    {
+                        playbackTimer.Stop();
+                        playbackTimer.Dispose();
+                        Dispatcher.Invoke(() => StopPlayback(newWaveOut));
+                    };
+
+                    _playbackTimers[newWaveOut] = playbackTimer;
+                    playbackTimer.Start();
+                }
+                else
+                {
+                    Log.Warning($"Invalid or zero duration specified for cue {selectedCue.CueNumber}. Playing the full track.");
+                    MessageBox.Show($"The duration '{selectedCue.Duration}' is invalid. The full track will be played.",
+                                    "Invalid Duration", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+
+                newWaveOut.Play();
+                _activeWaveOuts.Add(newWaveOut);
+
+                CurrentTrack.Text = $"Playing: {selectedCue.FileName}";
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error playing cue: {ex.Message}");
+                MessageBox.Show($"Failed to play the cue: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+
+
+        private void StopPlayback(WaveOutEvent waveOut)
+        {
+            try
+            {
+                if (_playbackTimers.ContainsKey(waveOut))
+                {
+                    _playbackTimers[waveOut].Stop();
+                    _playbackTimers[waveOut].Dispose();
+                    _playbackTimers.Remove(waveOut);
+                }
+
+                if (_audioFileReaders.ContainsKey(waveOut))
+                {
+                    _audioFileReaders[waveOut].Dispose();
+                    _audioFileReaders.Remove(waveOut);
+                }
+
+                waveOut?.Stop();
+                _activeWaveOuts.Remove(waveOut);
+                waveOut?.Dispose();
+
+                Log.Info("Playback stopped for the specified track.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error stopping playback for specific track: {ex.Message}");
+                MessageBox.Show($"Failed to stop playback for the track: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
         private void CleanupAudio()
         {
-            // Dispose of the current audio playback resources if they exist
-            waveOut?.Dispose();
-            audioFileReader?.Dispose();
+            if (_activeWaveOuts != null)
+            {
+                foreach (var waveOut in _activeWaveOuts)
+                {
+                    try
+                    {
+                        waveOut.Stop();
+                        waveOut.Dispose();
+                        Log.Info("Disposed of a WaveOutEvent instance.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Error disposing WaveOutEvent: {ex.Message}");
+                    }
+                }
 
-            // Set fields to null to prepare for new playback
+                _activeWaveOuts.Clear();
+            }
+
             waveOut = null;
             audioFileReader = null;
-
-            // Update UI if necessary
             CurrentTrack.Text = "No Track Selected";
             Log.Info("Audio resources cleaned up.");
         }
@@ -316,7 +507,7 @@ namespace Win_Labs
 
                 if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    string exportPath = folderDialog.SelectedPath;
+                    string exportPath = folderDialog.SelectedPath +"/Win-Labs Playlist";
                     try
                     {
                         import.openZIP(importPath, exportPath);
@@ -330,6 +521,7 @@ namespace Win_Labs
                     }
                 }
             }
+            RefreshCueList();
         }
 
 
@@ -355,6 +547,7 @@ namespace Win_Labs
                     MessageBox.Show($"Failed to export playlist: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+            RefreshCueList();
         }
 
 
@@ -364,7 +557,6 @@ namespace Win_Labs
             try
             {
                 CueManager.SaveAllCues(_cues, _playlistFolderPath);
-                Log.Info("All cues saved successfully.");
                 MessageBox.Show("All changes have been saved.", "Save Complete", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -372,6 +564,7 @@ namespace Win_Labs
                 Log.Error($"Error saving cues: {ex.Message}");
                 MessageBox.Show($"Failed to save changes: {ex.Message}", "Save Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            RefreshCueList();
         }
 
 

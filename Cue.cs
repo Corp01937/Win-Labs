@@ -1,3 +1,4 @@
+using NAudio.Wave;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -19,8 +20,49 @@ namespace Win_Labs
         private string _cueName;
         private bool _renaming;
 
-        // Instance property
+        public static bool IsInitializing { get; set; }
         public string PlaylistFolderPath { get; set; }
+
+        private static readonly object _lock = new object();
+
+        public float CueNumber
+        {
+            get => _cueNumber;
+            set
+            {
+                float oldCueNumber = value;
+                lock (_lock)
+                {
+                    if (_cueNumber != value)
+                    {
+                        Log.Info($"PropertyChange.CueNumber - Attempting to set CueNumber to {value}");
+                        bool proceed = !IsInitializing && !_renaming && CheckForDuplicateCueFile(value);
+
+                        if (proceed)
+                        {
+                            RenameCueFile(oldCueNumber, value);
+                            _cueNumber = value;
+                            OnPropertyChanged(nameof(CueNumber));
+                            Log.Info($"CueNumber set to {value}");
+
+                        }
+                        else
+                        {
+                            _cueNumber = oldCueNumber;
+                            Log.Info("User chose not to replace the existing cue file.");
+                        }
+                    }
+                    else
+                    {
+                        OnPropertyChanged(nameof(CueNumber));
+                        Log.Info($"CueNumber set to {value}");
+                    }
+                }
+            }
+        }
+
+        private TimeSpan _totalDuration;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public Cue(string playlistFolderPath)
         {
@@ -29,31 +71,6 @@ namespace Win_Labs
 
         public Cue() : this(string.Empty) { }
 
-        public float CueNumber
-        {
-            get => _cueNumber;
-            set
-            {
-                if (_cueNumber != value)
-                {
-                    
-                    Log.Info($"PropertyChange.CueNumber - Attempting to set CueNumber to {value}");
-                    bool proceed = CheckForDuplicateCueFile(value);
-
-                    if (proceed)
-                    {
-                        RenameCueFile(_cueNumber, value);
-                        _cueNumber = value;
-                        OnPropertyChanged(nameof(CueNumber));
-                        Log.Info($"CueNumber set to {value}");
-                    }
-                    else
-                    {
-                        Log.Info("User chose not to replace the existing cue file.");
-                    }
-                }
-            }
-        }
 
         public string CueName
         {
@@ -68,21 +85,48 @@ namespace Win_Labs
                 }
             }
         }
+        private string _displayedDuration;
+        private bool _isEditingDuration = false;
 
         public string Duration
         {
-            get => _duration;
+            get => _displayedDuration ?? $"{(int)_totalDuration.TotalHours:D2}:{_totalDuration.Minutes:D2}:{_totalDuration.Seconds:D2}:{_totalDuration.Milliseconds / 10:D2}";
             set
             {
-                if (_duration != value)
+                if (_isEditingDuration)
                 {
-                    Log.Info("PropertyChange.Duration");
-                    _duration = value;
+                    _displayedDuration = value; // Temporarily store user input
                     OnPropertyChanged(nameof(Duration));
+                    return;
                 }
+
+                if (TimeSpan.TryParseExact(value, @"hh\:mm\:ss\:ff", null, out TimeSpan parsedDuration))
+                {
+                    _totalDuration = parsedDuration;
+                    _displayedDuration = value;
+                    Log.Info($"Duration successfully updated to: {value}");
+                }
+                else
+                {
+                    Log.Warning($"Invalid duration format entered: {value}. Retaining previous value.");
+                }
+
+                OnPropertyChanged(nameof(Duration));
             }
         }
+        public void Duration_GotFocus()
+        {
+            _isEditingDuration = true; // Mark as editing
+            Log.Info("User started editing the Duration field.");
+            OnPropertyChanged(nameof(Duration)); // Update the binding
+        }
 
+        public void Duration_LostFocus()
+        {
+            _isEditingDuration = false; // Mark as no longer editing
+            Log.Info("User finished editing the Duration field.");
+            OnPropertyChanged(nameof(Duration)); // Update the binding
+        }
         public string PreWait
         {
             get => _preWait;
@@ -93,6 +137,8 @@ namespace Win_Labs
                     Log.Info("PropertyChange.PreWait");
                     _preWait = value;
                     OnPropertyChanged(nameof(PreWait));
+                
+                
                 }
             }
         }
@@ -149,6 +195,7 @@ namespace Win_Labs
                     Log.Info("PropertyChange.TargetFile");
                     _targetFile = value;
                     OnPropertyChanged(nameof(TargetFile));
+                    UpdateDuration();
                 }
             }
         }
@@ -167,124 +214,116 @@ namespace Win_Labs
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             Log.Info($"Save.Called - Property changed: {propertyName}");
-            Save();
+            if (!IsInitializing)
+            {
+                Save();
+            }
+
+        }
+        private void UpdateDuration()
+        {
+            if (_isEditingDuration)
+            {
+                Log.Info("Skipping duration update because the user is editing the Duration field.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_targetFile) || !File.Exists(_targetFile))
+            {
+                Duration = "00:00:00:00";
+                Log.Warning("TargetFile is invalid or does not exist. Duration set to 00:00:00:00");
+                return;
+            }
+
+            try
+            {
+                using (var audioFileReader = new AudioFileReader(_targetFile))
+                {
+                    var totalDuration = audioFileReader.TotalTime;
+                    Duration = $"{(int)totalDuration.TotalHours:D2}:{totalDuration.Minutes:D2}:{totalDuration.Seconds:D2}:{totalDuration.Milliseconds / 10:D2}";
+                    Log.Info($"Duration updated for TargetFile {_targetFile}: {Duration}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Duration = "Error";
+                Log.Error($"Error calculating duration for file '{_targetFile}': {ex.Message}");
+            }
         }
 
         public void Save()
         {
-            if (_renaming) return;
-
-            if (string.IsNullOrEmpty(PlaylistFolderPath))
-            {
-                Log.Warning("Not Saved - PlaylistFolderPath is empty or null.");
-                return;
+            if (_renaming || string.IsNullOrEmpty(PlaylistFolderPath)) 
+            { 
+                Log.Warning("Not Saved - PlaylistFolderPath is empty or null."); 
+                return; 
             }
-
             CueManager.SaveCueToFile(this, PlaylistFolderPath);
             Log.Info("Saved successfully.");
         }
-
         private bool CheckForDuplicateCueFile(float newCueNumber)
         {
-            if (!CueManager.StartupFinished)
-            {
-                Log.Info("In startup mode - Duplicate check skipped.");
-                return true;
-            }
-
+            if(Cue.IsInitializing == true) { return false; }
             string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
             if (!Directory.Exists(PlaylistFolderPath))
             {
                 Log.Warning($"Playlist folder does not exist: {PlaylistFolderPath}");
-                MessageBox.Show(
-                    $"The playlist folder '{PlaylistFolderPath}' is missing. Please verify the location.",
-                    "Folder Not Found",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning
-                );
                 return false;
             }
+
             if (File.Exists(newFilePath))
             {
-                Log.Warning($"Duplicate file found: {newFilePath}");
-
-                // Prompt user for action
                 var result = MessageBox.Show(
-                    $"A cue with the number {newCueNumber} already exists. Do you want to replace it or skip this operation?",
-                    "File Conflict",
-                    MessageBoxButton.YesNoCancel,
+                    $"Cue {newCueNumber} already exists. Replace it?",
+                    "Duplicate File",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Warning
                 );
 
-                switch (result)
+                if (result == MessageBoxResult.No)
                 {
-                    case MessageBoxResult.Cancel:
-                        Log.Info("User canceled the operation.");
+                    newFilePath = null;
+                    Log.Info("User chose not to replace the file.");
+                    return false;
+                }
+                else
+                {
+                    try
+                    {
+                        File.Delete(newFilePath);
+                        Log.Info($"Existing file deleted: {newFilePath}");
+                        newFilePath = null;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error($"Error deleting file: {ex.Message}");
                         return false;
-
-                    case MessageBoxResult.No:
-                        Log.Info("User chose to skip the replacement.");
-                        return false;
-
-                    case MessageBoxResult.Yes:
-                        try
-                        {
-                            File.Delete(newFilePath);
-                            Log.Info($"Existing file deleted: {newFilePath}");
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error($"Error deleting existing file '{newFilePath}': {ex.Message}");
-                            MessageBox.Show(
-                                $"Could not delete the existing file '{newFilePath}'. Check file permissions or try again.",
-                                "Delete Error",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error
-                            );
-                            return false;
-                        }
-                        break;
+                    }
                 }
             }
 
-            Log.Info("No duplicate file found. Proceeding.");
             return true;
         }
 
-
         private void RenameCueFile(float oldCueNumber, float newCueNumber)
         {
-            if (!CueManager.StartupFinished)
-            {
-                Log.Info("In startup mode - Rename skipped.");
-                return;
-            }
-
-            _renaming = true;
-
             string oldFilePath = Path.Combine(PlaylistFolderPath, $"cue_{oldCueNumber}.json");
             string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
             try
             {
-                if (File.Exists(newFilePath))
-                {
-                    Log.Warning($"File already exists at {newFilePath}. Deleting the existing file.");
-                    File.Delete(newFilePath);
-                }
 
                 if (File.Exists(oldFilePath))
                 {
                     File.Move(oldFilePath, newFilePath);
                     _cueFilePath = newFilePath;
-                    Log.Info($"Cue file renamed successfully from {oldFilePath} to {newFilePath}");
+                    Log.Info($"File renamed: {oldFilePath} -> {newFilePath}");
                 }
                 else
                 {
@@ -293,12 +332,11 @@ namespace Win_Labs
             }
             catch (Exception ex)
             {
-                Log.Error($"Error renaming file: {ex.Message}");
+                Log.Exception(ex);
             }
-            finally
-            {
-                _renaming = false;
-            }
+
         }
+
+
     }
 }

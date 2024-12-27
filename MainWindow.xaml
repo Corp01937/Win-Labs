@@ -82,10 +82,26 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button Content="Go" FontSize="50" Width="200" Height="80" Grid.Column="0" Grid.RowSpan="2" Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0" />
-                <Button Content="Pause" Width="50" Height="40" Click="PauseButton_Click" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" />
-                <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" />
-                <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                <Button Content="Go" FontSize="50" Width="200" Height="80" 
+                Grid.Column="0" Grid.RowSpan="2" 
+                Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="IsEnabled" Value="True" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=PauseButtonToggle}" Value="True">
+                                        <Setter Property="IsEnabled" Value="False" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <ToggleButton Content="Pause/Play" Width="50" Height="40"
+                          x:Name="PauseButtonToggle"
+                          Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                          Click="PauseButton_Click" />
+                    <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                    <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0" />
                 <TextBlock x:Name="CurrentTrack" Text="No Track Selected" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Margin="10,0,0,0" />
             </Grid>
         </DockPanel>
@@ -112,7 +128,7 @@
                     <GridView SelectiveScrollingGrid.SelectiveScrollingOrientation="Both">
                         <GridViewColumn Header="Cue #" Width="50" DisplayMemberBinding="{Binding CueNumber}" />
                         <GridViewColumn Header="CueName" Width="450" DisplayMemberBinding="{Binding CueName}" />
-                        <GridViewColumn Header="Duration" Width="100" DisplayMemberBinding="{Binding Duration}" />
+                        <GridViewColumn Header="Duration" Width="100" DisplayMemberBinding="{Binding Duration}"/>
                         <GridViewColumn Header="PreWait" Width="75" DisplayMemberBinding="{Binding PreWait}" />
                         <GridViewColumn Header="PostWait" Width="75" DisplayMemberBinding="{Binding PostWait}" />
                         <GridViewColumn Header="Auto Follow" Width="80">
@@ -159,7 +175,7 @@
 
                 <!-- Duration -->
                 <TextBlock Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Text="Duration:" />
-                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" />
+                <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" FocusManager.GotFocus="Duration_GotFocus" FocusManager.LostFocus="Duration_LostFocus"/>
 
                 <!-- Pre Wait -->
                 <TextBlock Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Text="Pre Wait:" />

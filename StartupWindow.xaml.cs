@@ -83,26 +83,23 @@ namespace Win_Labs
         {
             var folderDialog = new System.Windows.Forms.FolderBrowserDialog
             {
-                Description = "Select a playlist folder to load."
+                Description = "Select a playlist folder."
             };
 
             if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                playlistFolderPath = folderDialog.SelectedPath;
-                Log.Info($"Opening existing playlist folder: {playlistFolderPath}");
-
-                // Verify that the folder contains cue files or is a valid playlist
-                if (!Directory.EnumerateFiles(playlistFolderPath, "*.json").Any())
+                string folderPath = folderDialog.SelectedPath;
+                Log.Info($"Opening existing playlist folder: {folderPath}");
+                if (!Directory.EnumerateFiles(folderPath, "cue_*.json").Any())
                 {
-                    MessageBox.Show("The selected folder does not contain any valid playlist files.", "Invalid Playlist", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    Log.Warning($"Selected folder '{playlistFolderPath}' does not contain any cue files.");
+                    Log.Error("No cue files found in the selected folder: " + folderPath);
+                    MessageBox.Show("The selected folder does not contain any cue files.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                OpenMainWindow(playlistFolderPath);
+
+                OpenMainWindow(folderPath);
             }
         }
-
-
         private void ImportPlaylist_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new System.Windows.Forms.OpenFileDialog
