@@ -126,7 +126,7 @@ namespace Win_Labs
         private void CreateNewCue_Click(object sender, RoutedEventArgs e)
         {
             // Calculate the next cue number based on the current count of cues
-            int newCueNumber = _cues.Count;
+            int newCueNumber = (int)(_cues.Count > 0 ? _cues.Max(c => c.CueNumber) + 1 : 0);
 
             // Use CueManager to create the new cue
             var newCue = CueManager.CreateNewCue(newCueNumber, _playlistFolderPath);

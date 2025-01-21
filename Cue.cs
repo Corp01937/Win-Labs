@@ -8,7 +8,7 @@ namespace Win_Labs
 {
     public class Cue : INotifyPropertyChanged
     {
-        private float _cueNumber;
+        private int _cueNumber;
         private string _cueFilePath;
         private string _duration;
         private string _preWait;
@@ -25,12 +25,12 @@ namespace Win_Labs
 
         private static readonly object _lock = new object();
 
-        public float CueNumber
+        public int CueNumber
         {
             get => _cueNumber;
             set
             {
-                float oldCueNumber = value;
+                int oldCueNumber = value;
                 lock (_lock)
                 {
                     if (_cueNumber != value)
@@ -38,7 +38,7 @@ namespace Win_Labs
                         Log.Info($"PropertyChange.CueNumber - Attempting to set CueNumber to {value}");
                         bool proceed = !IsInitializing && !_renaming && CheckForDuplicateCueFile(value);
 
-                        if (proceed)
+                        if (proceed == true)
                         {
                             RenameCueFile(oldCueNumber, value);
                             _cueNumber = value;
