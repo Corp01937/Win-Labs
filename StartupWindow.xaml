@@ -4,7 +4,9 @@
         Title="Startup Menu" MinHeight="150" MinWidth="160" MaxHeight="150" MaxWidth="160"
         Margin="0"
         WindowStartupLocation="CenterScreen"
-        BorderThickness="2.5">
+        BorderThickness="2" 
+        WindowStyle="None"
+        ResizeMode="NoResize">
 
     <Window.BorderBrush>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -52,13 +54,20 @@
         <DockPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="250" LastChildFill="True" Margin="0">
             <Border Background="Transparent" Height="30" DockPanel.Dock="Top">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="67*"/>
+                        <ColumnDefinition Width="88*"/>
+                    </Grid.ColumnDefinitions>
                     <!-- Add Menu to Title Bar -->
-                    <Menu DockPanel.Dock="Left">
-                        <Image x:Name="Icon" Width="20" Height="20" Source="\resources\Win-Labs_SplashScreen.jpg" RenderTransformOrigin="0.988,0.757" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-7,-1,0,0" />
+                    <Menu Grid.ColumnSpan="2">
+                        <Image x:Name="TitleBarIcon" MouseDown="TitleBarIcon_Click" Width="20" Height="20" Source="\resources\Win-Labs_SplashScreen.jpg" RenderTransformOrigin="0.988,0.757" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="-7,-1,0,0" />
                         <MenuItem Header="Window" Margin="-5,0,0,0">
                             <MenuItem Header="Close" Click="CloseMenuItem_Click" />
-                            <MenuItem Header="other" />
+                            <MenuItem Header="Other" />
                         </MenuItem>
+                        <Image x:Name="Close_Button" MouseDown="CloseButton_Click" Width="20" Height="20" Source="/resources/Icons/Close_Icon.png" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="42,0,0,0" Stretch="Fill" />
+
+
                     </Menu>
                 </Grid>
             </Border>
@@ -67,6 +76,7 @@
             <Button Content="Create New Playlist" Click="CreateNewPlaylist_Click" Width="150" Height="30" Background="Transparent" />
             <Button Content="Open Existing Playlist" Click="OpenExistingPlaylist_Click" Width="150" Height="30" Background="Transparent" />
             <Button Content="Import Existing Playlist" Click="ImportPlaylist_Click" Width="150" Height="30" Background="Transparent" />
+            
         </StackPanel>
     </Grid>
 </Window>

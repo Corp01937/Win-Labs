@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 
+
 namespace Win_Labs
 {
     public partial class StartupWindow : Window
@@ -23,12 +24,12 @@ namespace Win_Labs
                 Log.Info("StartupWindow.Close.Detected");
 
                 var result = MessageBox.Show(
-                    "Do you want to save changes before closing?",
-                    "Save Changes",
-                    MessageBoxButton.YesNoCancel,
+                    "Are you sure you want to close?",
+                    "",
+                    MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
 
-                if (result == MessageBoxResult.Cancel)
+                if (result == MessageBoxResult.No)
                 {
                     Log.Info("User canceled the closing action.");
                     e.Cancel = true; // Prevent the window from closing
@@ -37,19 +38,6 @@ namespace Win_Labs
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    Log.Info("User chose to save changes.");
-                    try
-                    {
-                        SaveChanges(); // Call the save logic
-                        Log.Info("Changes saved successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error saving changes: {ex.Message}");
-                        MessageBox.Show($"Failed to save changes: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        e.Cancel = true; // Prevent closing if save fails
-                        return;
-                    }
                 }
 
                 Log.Info("Proceeding with closing the window.");
@@ -170,6 +158,17 @@ namespace Win_Labs
                 Log.Error($"Failed to import playlist: {ex.Message}");
                 MessageBox.Show($"Error importing playlist: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void CloseButton_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Log.Info("Close Button clicked.");
+            Close();
+        }
+
+        private void TitleBarIcon_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            MessageBox.Show("Hi there.", "!!EasterEgg!!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
         }
     }
 }
