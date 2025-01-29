@@ -7,11 +7,11 @@ namespace Win_Labs
     /// </summary>
     public partial class App : Application
     {
-        private bool Launched = false;
+        private bool Debug = false;
 
         private void LaunchDebug()
         {
-            Launched = true;
+            if(Debug == false) { return; }
         }
 
         private void Routing()

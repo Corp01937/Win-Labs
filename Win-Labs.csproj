@@ -47,7 +47,9 @@
     </Content>
     <Resource Include="resources\Icons\Maximize_Icon.png" />
     <Resource Include="resources\Icons\Minimize_Icon.png" />
-    <Resource Include="resources\Icons\Win-Labs_Icon.jpg" />
+    <Resource Include="resources\Icons\Win-Labs_Icon.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="resources\jpgs\Folder.jpg" />
     <Resource Include="resources\jpgs\Win-Labs_Icon.jpg" />
     <Resource Include="resources\pngs\Blank Paper.png" />
