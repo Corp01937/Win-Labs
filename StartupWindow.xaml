@@ -8,8 +8,10 @@
         BorderThickness="2" 
         WindowStyle="None"
         ResizeMode="NoResize"
+        AllowsTransparency="True"
         >
-
+    
+    
     <Window.BorderBrush>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="Red" Offset="0.0" />
@@ -35,9 +37,98 @@
     </Window.Background>
 
     <Window.Resources>
+        <Style x:Key="XMenu" TargetType="{x:Type Menu}">
+            <Setter Property = "Background" Value= "#9B000000"/>
+        </Style>
+        <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}" TargetType="{x:Type MenuItem}">
+            <Border Name="Border" >
+                <Grid>
+                    <ContentPresenter 
+        Margin="6,3,6,3" 
+        ContentSource="Header"                            
+        RecognizesAccessKey="True" />
+                    <Popup 
+      Name="Popup"
+      Placement="Bottom"
+      IsOpen="{TemplateBinding IsSubmenuOpen}"
+      AllowsTransparency="True" 
+      Focusable="False"                           
+      PopupAnimation="Fade">
+                        <Border 
+        Name="SubmenuBorder"
+        SnapsToDevicePixels="True"
+
+        Background="#9B000000">
+                            <StackPanel  
+          IsItemsHost="True" 
+          KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        </Border>
+                    </Popup>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsSuspendingPopupAnimation" Value="true">
+                    <Setter TargetName="Popup" Property="PopupAnimation" Value="None"/>
+                </Trigger>
+                <Trigger Property="IsHighlighted" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="#C0C0C0"/>
+                    <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
+                </Trigger>
+                <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
+                    <Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="0,0,4,4"/>
+                    <Setter TargetName="SubmenuBorder" Property="Padding" Value="0,0,0,3"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#888888"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="{x:Type MenuItem}">
+            <Border Name="Border" >
+                <Grid>
+                    <ContentPresenter 
+        Margin="6,3,6,3" 
+        ContentSource="Header"                            
+        RecognizesAccessKey="True" />
+                    <Popup 
+      Name="Popup"
+      Placement="Right"
+      IsOpen="{TemplateBinding IsSubmenuOpen}"
+      AllowsTransparency="True" 
+      Focusable="False"                           
+      PopupAnimation="Fade">
+                        <Border 
+        Name="SubmenuBorder"
+        SnapsToDevicePixels="True"
+        Background="#9B000000">
+                            <StackPanel  
+          IsItemsHost="True" 
+          KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        </Border>
+                    </Popup>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsSuspendingPopupAnimation" Value="true">
+                    <Setter TargetName="Popup" Property="PopupAnimation" Value="None"/>
+                </Trigger>
+                <Trigger Property="IsHighlighted" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="#C0C0C0"/>
+                    <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
+                </Trigger>
+                <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
+                    <Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="0,0,4,4"/>
+                    <Setter TargetName="SubmenuBorder" Property="Padding" Value="0,0,0,3"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#888888"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
     </Window.Resources>
 
-    <Grid ShowGridLines="True">
+    <Grid ShowGridLines="False">
 
         <!-- Define rows for vertical layout -->
         <Grid.RowDefinitions>
@@ -55,20 +146,22 @@
         <!-- Title Bar -->
         <DockPanel Width="160" Grid.Row="0" >
             <Image x:Name="TitleBarIcon" MouseDown="TitleBarIcon_Click" Width="20" Height="20" Source="\resources\Icons\Win-Labs_Icon.jpg" />
-            <Menu>
-            <MenuItem Header="Window" Width="110" HorizontalAlignment="Left" >
-                <MenuItem Header="Close" Click="CloseMenuItem_Click" />
-                <MenuItem Header="Other" />
-            </MenuItem>
+            <Menu Style="{StaticResource XMenu}">
+                <MenuItem Header="Window" Width="110" HorizontalAlignment="Left" BorderThickness="0" Foreground="LightGray">
+                    <MenuItem Header="Close" Click="CloseMenuItem_Click" Foreground="LightGray"/>
+                    <Separator Background="DarkSlateBlue"/>
+                    <MenuItem Header="Other" Foreground="LightGray"/>
+                </MenuItem>
             </Menu>
-            <Image x:Name="Close_Button" MouseDown="CloseButton_Click" Width="20" Height="20" Source="/resources/Icons/Close_Icon.png" />
-
+            <Grid Background="#9B000000">
+                <Image x:Name="Close_Button" MouseDown="CloseButton_Click" Width="20" Height="20" Source="/resources/Icons/Close_Icon_White.png" />
+            </Grid>
         </DockPanel>
 
-        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0">
-            <Button Content="Create New Playlist" Click="CreateNewPlaylist_Click" Width="150" Height="30" Background="Transparent" />
-            <Button Content="Open Existing Playlist" Click="OpenExistingPlaylist_Click" Width="150" Height="30" Background="Transparent" />
-            <Button Content="Import Existing Playlist" Click="ImportPlaylist_Click" Width="150" Height="30" Background="Transparent" />
+        <StackPanel Grid.Row="1" Margin="0">
+            <Button Content="Create New Playlist" Click="CreateNewPlaylist_Click" Width="160" Height="30" Background="Transparent" />
+            <Button Content="Open Existing Playlist" Click="OpenExistingPlaylist_Click" Width="160" Height="30" Background="Transparent" />
+            <Button Content="Import Existing Playlist" Click="ImportPlaylist_Click" Width="160" Height="30" Background="Transparent" />
 
         </StackPanel>
     </Grid>
