@@ -25,7 +25,7 @@ namespace Win_Labs
                 return cues;
             }
             var cueFiles = Directory.GetFiles(playlistFolderPath, "*.json");
-            Log.Info($"Found {cueFiles.Length} cue files.");
+            Log.Info($"Found {cueFiles.Length} cue files in {playlistFolderPath}.");
             try
             {
                 foreach (var file in Directory.EnumerateFiles(playlistFolderPath, "cue_*.json"))

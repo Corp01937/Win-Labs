@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Windows;
+using System.Xml.Serialization;
 
 
 namespace Win_Labs
@@ -150,8 +152,8 @@ namespace Win_Labs
             try
             {
                 import.openZIP(playlistImportFilePath, playlistFolderPath);
-                Log.Info("Playlist imported successfully.");
-                OpenMainWindow(playlistFolderPath);
+                Log.Info($"Playlist imported successfully from {playlistImportFilePath} to {import.importFolderPath}.");
+                OpenMainWindow(import.importFolderPath);
             }
             catch (Exception ex)
             {

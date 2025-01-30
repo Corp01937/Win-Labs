@@ -1,13 +1,17 @@
 ﻿using System.IO.Compression;
 using System.IO;
 using System.Windows;
+using Microsoft.VisualBasic.Logging;
 
 namespace Win_Labs
 {
     internal class import
     {
-        public static void openZIP(string importPath, string exportPath)
+        public static string destinationPath { get; private set; }
+        public static string importFolderPath { get; private set; }
+        public static string openZIP(string importPath, string exportPath)
         {
+            destinationPath = exportPath;
             Log.Info("Opening file: " + importPath);
 
             try
@@ -30,7 +34,21 @@ namespace Win_Labs
                 {
                     foreach (var entry in archive.Entries)
                     {
-                        string destinationPath = Path.Combine(exportPath, entry.FullName);
+                        destinationPath = Path.Combine(exportPath, entry.FullName);
+
+                        if (entry.FullName.EndsWith("/"))
+                        {
+                            Log.Info($"Skipped directory: {entry.FullName}");
+                            importFolderPath = Path.GetDirectoryName(destinationPath);
+                            // Ensure the directory exists
+                            var directoryPath = Path.GetDirectoryName(destinationPath);
+                            if (directoryPath != null)
+                            {
+                                Directory.CreateDirectory(directoryPath);
+                            }
+                            continue; // Skip directories
+
+                        }
 
                         // Check if the file already exists
                         if (File.Exists(destinationPath))
@@ -57,7 +75,7 @@ namespace Win_Labs
                                 else if (result == MessageBoxResult.Cancel)
                                 {
                                     Log.Info("User canceled extraction.");
-                                    return; // Stop extraction
+                                    return null; // Stop extraction
                                 }
                                 else if (result == MessageBoxResult.Yes)
                                 {
@@ -76,8 +94,7 @@ namespace Win_Labs
                             }
                         }
 
-                        // Ensure the directory exists
-                        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+
 
                         // Extract the file
                         entry.ExtractToFile(destinationPath, true); // Overwrite if allowed
@@ -85,13 +102,16 @@ namespace Win_Labs
                     }
                 }
 
-                Log.Info($"{exportPath} successfully populated with files from the ZIP archive.");
+                Log.Info($"{destinationPath} successfully populated with files from the ZIP archive.");
+                return destinationPath;
             }
             catch (Exception ex)
             {
+                Log.Exception(ex);
                 Log.Error($"Error extracting ZIP file: {ex.Message}");
                 MessageBox.Show($"Could not open file {importPath}. Please check the location or permissions.",
                     "File Opening Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null;
             }
         }
 

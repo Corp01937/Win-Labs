@@ -9,6 +9,10 @@ using System.Collections.ObjectModel;
 using NAudio.Wave;
 using System.Text;
 using System.Windows.Data;
+using System.Xml.Serialization;
+using Microsoft.VisualBasic.Logging;
+using System.Reflection.Metadata;
+using System.DirectoryServices;
 
 
 namespace Win_Labs
@@ -68,6 +72,7 @@ namespace Win_Labs
             _cues.Clear();
             foreach (var cue in loadedCues)
             {
+                Log.Info($"Loaded cue: {cue.CueNumber}");
                 _cues.Add(cue);
             }
             RefreshCueList();
@@ -510,12 +515,26 @@ namespace Win_Labs
 
                 if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
-                    string exportPath = folderDialog.SelectedPath +"/Win-Labs Playlist";
+                    string exportPath = folderDialog.SelectedPath;
                     try
                     {
+                        // Show loading window
+                        var loadingWindow = new LoadingWindow();
+                        loadingWindow.Show();
+
+                        // Close current main window
+                        this.Close();
+
+                        // Import the playlist
                         import.openZIP(importPath, exportPath);
-                        Log.Info($"Playlist imported successfully from {importPath} to {exportPath}.");
-                        LoadCues(); // Refresh cues
+                        Log.Info($"Playlist imported successfully from {importPath}");
+
+                        // Open new main window with the new playlist
+                        var newMainWindow = new MainWindow(import.importFolderPath);
+                        newMainWindow.Show();
+
+                        // Close loading window
+                        loadingWindow.Close();
                     }
                     catch (Exception ex)
                     {
@@ -524,7 +543,6 @@ namespace Win_Labs
                     }
                 }
             }
-            RefreshCueList();
         }
 
 
