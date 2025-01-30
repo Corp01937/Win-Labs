@@ -1,110 +1,111 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows7.0</TargetFramework>
-    <RootNamespace>Win_Labs</RootNamespace>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <ApplicationIcon>resources\Icons\Win-Labs_Icon.ico</ApplicationIcon>
-    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
-    <SignAssembly>False</SignAssembly>
+	<OutputType>Exe</OutputType>
+	<TargetFramework>net8.0-windows7.0</TargetFramework>
+	 <EnableWindowsTargeting>true</EnableWindowsTargeting>
+	<RootNamespace>Win_Labs</RootNamespace>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<UseWPF>true</UseWPF>
+	<ApplicationIcon>resources\Icons\Win-Labs_Icon.ico</ApplicationIcon>
+	<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
+	<SignAssembly>False</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="resources\defaultCue.json" />
-    <None Remove="resources\Icons\Close_Icon.png" />
-    <None Remove="resources\Icons\Close_Icon_White.png" />
-    <None Remove="resources\Icons\Maximize_Icon.png" />
-    <None Remove="resources\Icons\Minimize_Icon.png" />
-    <None Remove="resources\Icons\Win-Labs_Icon.jpg" />
-    <None Remove="resources\jpgs\Folder.jpg" />
-    <None Remove="resources\jpgs\Win-Labs_Icon.jpg" />
-    <None Remove="resources\pngs\Blank Paper.png" />
-    <None Remove="resources\pngs\Help.png" />
-    <None Remove="resources\Toolbar\Blank Paper.png" />
-    <None Remove="resources\Toolbar\Folder.jpg" />
-    <None Remove="resources\Toolbar\Help.png" />
-    <None Remove="resources\Win-Labs_SplashScreen.jpg" />
+	<None Remove="resources\defaultCue.json" />
+	<None Remove="resources\Icons\Close_Icon.png" />
+	<None Remove="resources\Icons\Close_Icon_White.png" />
+	<None Remove="resources\Icons\Maximize_Icon.png" />
+	<None Remove="resources\Icons\Minimize_Icon.png" />
+	<None Remove="resources\Icons\Win-Labs_Icon.jpg" />
+	<None Remove="resources\jpgs\Folder.jpg" />
+	<None Remove="resources\jpgs\Win-Labs_Icon.jpg" />
+	<None Remove="resources\pngs\Blank Paper.png" />
+	<None Remove="resources\pngs\Help.png" />
+	<None Remove="resources\Toolbar\Blank Paper.png" />
+	<None Remove="resources\Toolbar\Folder.jpg" />
+	<None Remove="resources\Toolbar\Help.png" />
+	<None Remove="resources\Win-Labs_SplashScreen.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="resources\defaultCue.json">
-      <Generator>MSBuild:Compile</Generator>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\Icons\Win-Labs_Icon.ico" />
+	<Content Include="resources\defaultCue.json">
+	  <Generator>MSBuild:Compile</Generator>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Content>
+	<Content Include="resources\Icons\Win-Labs_Icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	<PackageReference Include="NAudio" Version="2.2.1" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="resources\Icons\Close_Icon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="resources\Icons\Close_Icon_White.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Resource Include="resources\Icons\Maximize_Icon.png" />
-    <Resource Include="resources\Icons\Minimize_Icon.png" />
-    <Resource Include="resources\Icons\Win-Labs_Icon.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="resources\jpgs\Folder.jpg" />
-    <Resource Include="resources\jpgs\Win-Labs_Icon.jpg" />
-    <Resource Include="resources\pngs\Blank Paper.png" />
-    <Resource Include="resources\pngs\Help.png" />
-    <Resource Include="resources\Toolbar\Blank Paper.png" />
-    <Resource Include="resources\Toolbar\Folder.jpg" />
-    <Resource Include="resources\Toolbar\Help.png" />
-    <Resource Include="resources\Win-Labs_SplashScreen.jpg" />
+	<Content Include="resources\Icons\Close_Icon.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="resources\Icons\Close_Icon_White.png">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Resource Include="resources\Icons\Maximize_Icon.png" />
+	<Resource Include="resources\Icons\Minimize_Icon.png" />
+	<Resource Include="resources\Icons\Win-Labs_Icon.jpg">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
+	<Resource Include="resources\jpgs\Folder.jpg" />
+	<Resource Include="resources\jpgs\Win-Labs_Icon.jpg" />
+	<Resource Include="resources\pngs\Blank Paper.png" />
+	<Resource Include="resources\pngs\Help.png" />
+	<Resource Include="resources\Toolbar\Blank Paper.png" />
+	<Resource Include="resources\Toolbar\Folder.jpg" />
+	<Resource Include="resources\Toolbar\Help.png" />
+	<Resource Include="resources\Win-Labs_SplashScreen.jpg" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="resources\SaveData\" />
+	<Folder Include="resources\SaveData\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="NAudio.Wave">
-      <Alias> NAudio</Alias>
-    </Using>
-    <Using Include="System.Collections.ObjectModel;" />
-    <Using Include="System.ComponentModel;" />
-    <Using Include="System.IO;" />
-    <Using Include="System.Windows" />
-    <Using Include="System.Windows.Controls" />
-    <Using Include="System.Windows.Data;" />
+	<Using Include="NAudio.Wave">
+	  <Alias> NAudio</Alias>
+	</Using>
+	<Using Include="System.Collections.ObjectModel;" />
+	<Using Include="System.ComponentModel;" />
+	<Using Include="System.IO;" />
+	<Using Include="System.Windows" />
+	<Using Include="System.Windows.Controls" />
+	<Using Include="System.Windows.Data;" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
+	<Compile Update="Properties\Resources.Designer.cs">
+	  <DesignTime>True</DesignTime>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
+	<Compile Update="Properties\Settings.Designer.cs">
+	  <DesignTimeSharedInput>True</DesignTimeSharedInput>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Settings.settings</DependentUpon>
+	</Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+	<EmbeddedResource Update="Properties\Resources.resx">
+	  <Generator>ResXFileCodeGenerator</Generator>
+	  <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	</EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
+	<None Update="Properties\Settings.settings">
+	  <Generator>SettingsSingleFileGenerator</Generator>
+	  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	</None>
   </ItemGroup>
 
 </Project>
