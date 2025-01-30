@@ -44,24 +44,24 @@
             <Border Name="Border" >
                 <Grid>
                     <ContentPresenter 
-        Margin="6,3,6,3" 
-        ContentSource="Header"                            
-        RecognizesAccessKey="True" />
+                        Margin="6,3,6,3" 
+                        ContentSource="Header"                            
+                        RecognizesAccessKey="True" />
                     <Popup 
-      Name="Popup"
-      Placement="Bottom"
-      IsOpen="{TemplateBinding IsSubmenuOpen}"
-      AllowsTransparency="True" 
-      Focusable="False"                           
-      PopupAnimation="Fade">
+                        Name="Popup"
+                        Placement="Bottom"
+                        IsOpen="{TemplateBinding IsSubmenuOpen}"
+                        AllowsTransparency="True" 
+                        Focusable="False"
+                        PopupAnimation="Fade">
                         <Border 
-        Name="SubmenuBorder"
-        SnapsToDevicePixels="True"
+                            Name="SubmenuBorder"
+                            SnapsToDevicePixels="True"
 
-        Background="#9B000000">
+                            Background="#9B000000">
                             <StackPanel  
-          IsItemsHost="True" 
-          KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                IsItemsHost="True" 
+                                KeyboardNavigation.DirectionalNavigation="Cycle" />
                         </Border>
                     </Popup>
                 </Grid>
