@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows;
 
+using System.Windows.Forms;
+
 namespace Win_Labs
 {
     public class Cue : INotifyPropertyChanged
@@ -87,33 +89,39 @@ namespace Win_Labs
         }
         private string _displayedDuration;
         private bool _isEditingDuration = false;
-
+        private string _lastValidDuration;
         public string Duration
         {
-            get => _displayedDuration ?? $"{_totalDuration.Minutes:D2}:{_totalDuration.Seconds:D2}:{_totalDuration.Milliseconds:D3}";
+            get => _displayedDuration ?? $"{_totalDuration:mm\\:ss\\.ff}";
             set
             {
                 if (_isEditingDuration)
                 {
                     _displayedDuration = value; // Temporarily store user input
-                    OnPropertyChanged(nameof(Duration));
-                    return;
-                }
-
-                if (TimeSpan.TryParseExact(value, @"mm\:ss\.ff", null, out TimeSpan parsedDuration))
-                {
-                    _totalDuration = parsedDuration;
-                    _displayedDuration = value;
-                    Log.Info($"Duration successfully updated to: {value}");
                 }
                 else
                 {
-                    Log.Warning($"Invalid duration format entered: {value}. Retaining previous value.");
+                    if (TryParseDuration(value, out TimeSpan parsedDuration))
+                    {
+                        _totalDuration = parsedDuration;
+                        _displayedDuration = value;
+                        _lastValidDuration = value; // Store the last valid value
+                        Log.Info($"Duration successfully updated to: {value}");
+                    }
+                    else
+                    {
+                        Log.Warning($"Invalid duration format entered: {value}. Reverting to file duration: {_displayedDuration}");
+                        UpdateDuration(); // Set to the duration of the file
+                    }
                 }
-
-                OnPropertyChanged(nameof(Duration));
             }
         }
+
+        private bool TryParseDuration(string value, out TimeSpan parsedDuration)
+        {
+            return TimeSpan.TryParseExact(value, @"mm\:ss\.ff", null, out parsedDuration);
+        }
+
         public void Duration_GotFocus()
         {
             _isEditingDuration = true; // Mark as editing
@@ -125,6 +133,10 @@ namespace Win_Labs
         {
             _isEditingDuration = false; // Mark as no longer editing
             Log.Info("User finished editing the Duration field.");
+            // Trigger validation by setting Duration to itself
+            string tempDuration = _displayedDuration;
+            _displayedDuration = null; // Force property change
+            Duration = tempDuration;
             OnPropertyChanged(nameof(Duration)); // Update the binding
         }
         public string PreWait
@@ -137,8 +149,8 @@ namespace Win_Labs
                     Log.Info("PropertyChange.PreWait");
                     _preWait = value;
                     OnPropertyChanged(nameof(PreWait));
-                
-                
+
+
                 }
             }
         }
@@ -235,8 +247,8 @@ namespace Win_Labs
 
             if (string.IsNullOrEmpty(_targetFile) || !File.Exists(_targetFile))
             {
-                Duration = "00:00:00:00";
-                Log.Warning("TargetFile is invalid or does not exist. Duration set to 00:00:00:00");
+                SetDuration(TimeSpan.Zero);
+                Log.Warning("TargetFile is invalid or does not exist. Duration set to 00:00.00");
                 return;
             }
 
@@ -245,30 +257,38 @@ namespace Win_Labs
                 using (var audioFileReader = new AudioFileReader(_targetFile))
                 {
                     var totalDuration = audioFileReader.TotalTime;
-                    Duration = $"{(int)totalDuration.TotalHours:D2}:{totalDuration.Minutes:D2}:{totalDuration.Seconds:D2}:{totalDuration.Milliseconds / 10:D2}";
-                    Log.Info($"Duration updated for TargetFile {_targetFile}: {Duration}");
+                    Log.Info($"Duration updated for TargetFile {_targetFile}: {totalDuration}");
+                    SetDuration(totalDuration);
                 }
             }
             catch (Exception ex)
             {
-                Duration = "Error";
+                SetDuration(TimeSpan.Zero);
                 Log.Error($"Error calculating duration for file '{_targetFile}': {ex.Message}");
             }
         }
 
+        private void SetDuration(TimeSpan duration)
+        {
+            _totalDuration = duration;
+            _displayedDuration = $"{duration:mm\\:ss\\.ff}";
+            OnPropertyChanged(nameof(Duration));
+        }
+
+
         public void Save()
         {
-            if (_renaming || string.IsNullOrEmpty(PlaylistFolderPath)) 
-            { 
-                Log.Warning("Not Saved - PlaylistFolderPath is empty or null."); 
-                return; 
+            if (_renaming || string.IsNullOrEmpty(PlaylistFolderPath))
+            {
+                Log.Warning("Not Saved - PlaylistFolderPath is empty or null.");
+                return;
             }
             CueManager.SaveCueToFile(this, PlaylistFolderPath);
             Log.Info("Saved successfully.");
         }
         private bool CheckForDuplicateCueFile(float newCueNumber)
         {
-            if(Cue.IsInitializing == true) { return false; }
+            if (Cue.IsInitializing == true) { return false; }
             string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
             if (!Directory.Exists(PlaylistFolderPath))
@@ -279,7 +299,7 @@ namespace Win_Labs
 
             if (File.Exists(newFilePath))
             {
-                var result = MessageBox.Show(
+                var result = System.Windows.MessageBox.Show(
                     $"Cue {newCueNumber} already exists. Replace it?",
                     "Duplicate File",
                     MessageBoxButton.YesNo,
