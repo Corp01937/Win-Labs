@@ -147,7 +147,7 @@
         <DockPanel Width="160" Grid.Row="0" >
             <Image x:Name="TitleBarIcon" MouseDown="TitleBarIcon_Click" Width="20" Height="20" Source="\resources\Icons\Win-Labs_Icon.jpg" />
             <Menu Style="{StaticResource XMenu}">
-                <MenuItem Header="Window" Width="110" HorizontalAlignment="Left" BorderThickness="0" Foreground="LightGray">
+                <MenuItem Header="Window" Width="115" HorizontalAlignment="Left" BorderThickness="0" Foreground="LightGray">
                     <MenuItem Header="Close" Click="CloseMenuItem_Click" Foreground="LightGray"/>
                     <Separator Background="DarkSlateBlue"/>
                     <MenuItem Header="Other" Foreground="LightGray"/>
