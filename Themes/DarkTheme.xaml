@@ -30,94 +30,149 @@
         <Setter Property="Margin" Value="2"/>
     </Style>
 
+    <!-- Style for DockPanel -->
+    <Style TargetType="DockPanel">
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
+    </Style>
 
-    <!-- Fancy Menu bar dont touch please -->
-    <Style x:Key="XMenu" TargetType="{x:Type Menu}">
+    <!-- Style for TextBlock -->
+    <Style TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+    </Style>
+
+    <!-- Style for ToggleButton -->
+    <Style TargetType="ToggleButton">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="5,2"/>
+        <Setter Property="Margin" Value="2"/>
+    </Style>
+
+    <!-- Style for ListView -->
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WindowForegroundBrush}"/>
+    </Style>
+
+    <!-- Style for ListViewItem -->
+    <Style TargetType="ListViewItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="DarkSlateGray"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Style for GridViewColumnHeader -->
+    <Style TargetType="GridViewColumnHeader">
+        <Setter Property="Background" Value="DarkGray"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Style for TextBox -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Style for CheckBox -->
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+    </Style>
+
+    <!-- Style for Image -->
+    <Style TargetType="Image">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+    <!-- Style for Border -->
+    <Style TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
+    </Style>
+
+    <!-- Style for ComboBox -->
+    <Style TargetType="ComboBox">
+        <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WindowForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Style for ComboBoxItem -->
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="DarkSlateGray"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Style for Label -->
+    <Style TargetType="Label">
+        <Setter Property="Foreground" Value="{StaticResource WindowForegroundBrush}"/>
+    </Style>
+
+    <!-- Fancy Menu bar -->
+    <Style TargetType="{x:Type Menu}">
         <Setter Property="Background" Value="#9B000000"/>
     </Style>
-    <ControlTemplate x:Key="{x:Static MenuItem.TopLevelHeaderTemplateKey}" TargetType="{x:Type MenuItem}">
-        <Border Name="Border" >
-            <Grid>
-                <ContentPresenter 
-                    Margin="6,3,6,3" 
-                    ContentSource="Header"                            
-                    RecognizesAccessKey="True" />
-                <Popup 
-                    Name="Popup"
-                    Placement="Bottom"
-                    IsOpen="{TemplateBinding IsSubmenuOpen}"
-                    AllowsTransparency="True" 
-                    Focusable="False"
-                    PopupAnimation="Fade">
-                    <Border 
-                        Name="SubmenuBorder"
-                        SnapsToDevicePixels="True"
-                        Background="#9B000000">
-                        <StackPanel  
-                            IsItemsHost="True" 
-                            KeyboardNavigation.DirectionalNavigation="Cycle" />
+    <Style TargetType="{x:Type MenuItem}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type MenuItem}">
+                    <Border Name="Border">
+                        <Grid>
+                            <ContentPresenter 
+                            Margin="6,3,6,3" 
+                            ContentSource="Header"                            
+                            RecognizesAccessKey="True" />
+                            <Popup 
+                            Name="Popup"
+                            Placement="Bottom"
+                            IsOpen="{TemplateBinding IsSubmenuOpen}"
+                            AllowsTransparency="True" 
+                            Focusable="False"
+                            PopupAnimation="Fade">
+                                <Border 
+                                Name="SubmenuBorder"
+                                SnapsToDevicePixels="True"
+                                Background="#9B000000">
+                                    <StackPanel  
+                                    IsItemsHost="True" 
+                                    KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                </Border>
+                            </Popup>
+                        </Grid>
                     </Border>
-                </Popup>
-            </Grid>
-        </Border>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsSuspendingPopupAnimation" Value="true">
-                <Setter TargetName="Popup" Property="PopupAnimation" Value="None"/>
-            </Trigger>
-            <Trigger Property="IsHighlighted" Value="true">
-                <Setter TargetName="Border" Property="Background" Value="#C0C0C0"/>
-                <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
-            </Trigger>
-            <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
-                <Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="0,0,4,4"/>
-                <Setter TargetName="SubmenuBorder" Property="Padding" Value="0,0,0,3"/>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="#888888"/>
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
-
-    <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}" TargetType="{x:Type MenuItem}">
-        <Border Name="Border" >
-            <Grid>
-                <ContentPresenter 
-                    Margin="6,3,6,3" 
-                    ContentSource="Header"                            
-                    RecognizesAccessKey="True" />
-                <Popup 
-                    Name="Popup"
-                    Placement="Right"
-                    IsOpen="{TemplateBinding IsSubmenuOpen}"
-                    AllowsTransparency="True" 
-                    Focusable="False"                           
-                    PopupAnimation="Fade">
-                    <Border 
-                        Name="SubmenuBorder"
-                        SnapsToDevicePixels="True"
-                        Background="#9B000000">
-                        <StackPanel  
-                            IsItemsHost="True" 
-                            KeyboardNavigation.DirectionalNavigation="Cycle" />
-                    </Border>
-                </Popup>
-            </Grid>
-        </Border>
-        <ControlTemplate.Triggers>
-            <Trigger Property="IsSuspendingPopupAnimation" Value="true">
-                <Setter TargetName="Popup" Property="PopupAnimation" Value="None"/>
-            </Trigger>
-            <Trigger Property="IsHighlighted" Value="true">
-                <Setter TargetName="Border" Property="Background" Value="#C0C0C0"/>
-                <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
-            </Trigger>
-            <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
-                <Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="0,0,4,4"/>
-                <Setter TargetName="SubmenuBorder" Property="Padding" Value="0,0,0,3"/>
-            </Trigger>
-            <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Foreground" Value="#888888"/>
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSuspendingPopupAnimation" Value="true">
+                            <Setter TargetName="Popup" Property="PopupAnimation" Value="None"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="#C0C0C0"/>
+                            <Setter TargetName="Border" Property="BorderBrush" Value="Transparent"/>
+                        </Trigger>
+                        <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="True">
+                            <Setter TargetName="SubmenuBorder" Property="CornerRadius" Value="0,0,4,4"/>
+                            <Setter TargetName="SubmenuBorder" Property="Padding" Value="0,0,0,3"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="#888888"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

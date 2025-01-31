@@ -21,6 +21,11 @@
         <GradientStop Color="Violet" Offset="1.0" />
     </LinearGradientBrush>
 
+    <LinearGradientBrush x:Key="WindowForegroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="White" Offset="0.0" />
+        <GradientStop Color="LightGray" Offset="1.0" />
+    </LinearGradientBrush>
+
     <!-- Default style for Window -->
     <Style TargetType="Window">
         <Setter Property="Background" Value="{StaticResource WindowBackgroundBrush}"/>
@@ -47,7 +52,6 @@
         <Setter Property="Margin" Value="2"/>
     </Style>
 
-
     <!-- Fancy Menu bar dont touch please -->
     <Style x:Key="XMenu" TargetType="{x:Type Menu}">
         <Setter Property="Background" Value="#9B000000"/>
@@ -69,7 +73,6 @@
                     <Border 
                         Name="SubmenuBorder"
                         SnapsToDevicePixels="True"
-
                         Background="#9B000000">
                         <StackPanel  
                             IsItemsHost="True" 

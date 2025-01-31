@@ -16,6 +16,9 @@ using System.DirectoryServices;
 using System.Windows.Documents;
 using System.Drawing.Interop;
 using Win_Labs.Properties;
+using System.Reflection.Metadata.Ecma335;
+using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 
 
 namespace Win_Labs
@@ -500,6 +503,14 @@ namespace Win_Labs
             audioFileReader = null;
             CurrentTrack.Text = "No Track Selected";
             Log.Info("Audio resources cleaned up.");
+        }
+
+        private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Settings menu item clicked");
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
         }
 
         private void ImportMenuItem_Click(object sender, RoutedEventArgs e)
