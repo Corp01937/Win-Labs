@@ -43,10 +43,11 @@
             <Border Background="DarkGray" Height="30" DockPanel.Dock="Top">
                 <Grid>
                     <!-- Add Menu to Title Bar -->
-                    <Menu DockPanel.Dock="Left">
-                        <MenuItem Header="Window">
+                    <Menu DockPanel.Dock="Left" >
+                        <MenuItem Header="Window" >
                             <MenuItem Header="Close" Click="CloseMenuItem_Click" />
-                            <MenuItem Header="other" />
+                            <MenuItem Header="Settings" Click="SettingsMenuItem_Click"/>
+                            <MenuItem Header="Other" />
                         </MenuItem>
                         <MenuItem Header="File">
                             <MenuItem Header="Save" Click="SaveMenuItem_Click" />
@@ -77,7 +78,9 @@
                 </Grid.ColumnDefinitions>
                 <Button Content="Go" FontSize="50" Width="200" Height="80" 
                 Grid.Column="0" Grid.RowSpan="2" 
-                Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0">
+                Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0"
+                Foreground="LightGray"
+                Background="#333333">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="IsEnabled" Value="True" />
