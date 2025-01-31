@@ -13,12 +13,15 @@ using System.Xml.Serialization;
 using Microsoft.VisualBasic.Logging;
 using System.Reflection.Metadata;
 using System.DirectoryServices;
+using System.Windows.Documents;
+using System.Drawing.Interop;
 
 
 namespace Win_Labs
 {
     public partial class MainWindow : Window
     {
+        private PlaylistManager playlistManager;
         private readonly string _playlistFolderPath;
         private readonly ObservableCollection<Cue> _cues = new ObservableCollection<Cue>();
         private Cue _currentCue = new();
@@ -27,6 +30,7 @@ namespace Win_Labs
         public MainWindow(string playlistFolderPath)
         {
             InitializeComponent();
+            playlistManager = new PlaylistManager(this);
             _playlistFolderPath = playlistFolderPath;
             CueListView.ItemsSource = _cues;
             Initialize();
@@ -35,6 +39,7 @@ namespace Win_Labs
 
         private void Initialize()
         {
+
             Log.Info("Initializing application...");
             BindCue(_currentCue);
             SetupCueChangeHandler();
@@ -150,7 +155,7 @@ namespace Win_Labs
             RefreshCueList();
         }
 
-        private void RefreshCueList()
+        public void RefreshCueList()
         {
             var selectedCue = CueListView.SelectedItem;
             CollectionViewSource.GetDefaultView(CueListView.ItemsSource).Refresh();
@@ -548,27 +553,7 @@ namespace Win_Labs
 
         private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            Log.Info("Export menu item clicked.");
-            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-            {
-                Description = "Select a destination folder for the exported playlist."
-            };
-
-            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string destinationPath = folderDialog.SelectedPath;
-                try
-                {
-                    export.createZIP(_playlistFolderPath, destinationPath);
-                    Log.Info($"Playlist exported successfully to {destinationPath}.");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error exporting playlist: {ex.Message}");
-                    MessageBox.Show($"Failed to export playlist: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            RefreshCueList();
+            playlistManager.ExportPlaylist(_playlistFolderPath);
         }
 
 
@@ -588,7 +573,37 @@ namespace Win_Labs
             RefreshCueList();
         }
 
-
+        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Open menu item clicked.");
+            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
+            {
+                Description = "Select the playlist folder to open."
+            };
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string selectedPath = folderDialog.SelectedPath;
+                try
+                {
+                    Log.Info("Show loading window");
+                    var loadingWindow = new LoadingWindow();
+                    loadingWindow.Show();
+                    Log.Info("Close current main window");
+                    this.Close();
+                    Log.Info("Open the new playlist");
+                    var newMainWindow = new MainWindow(selectedPath);
+                    newMainWindow.Show();
+                    Log.Info("Close loading window");
+                    loadingWindow.Close();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error opening playlist: {ex.Message} \n Exception output: ");
+                    Log.Exception(ex);
+                    MessageBox.Show($"Failed to open playlist: {ex.Message}", "Open Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
 
         private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
         {
