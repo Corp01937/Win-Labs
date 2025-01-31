@@ -1,4 +1,6 @@
-﻿<Window x:Class="Win_Labs.MainWindow"
+﻿<local:BaseWindow 
+        xmlns:local="clr-namespace:Win_Labs"
+        x:Class="Win_Labs.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,22 +15,7 @@
         MinWidth="840"
         WindowStartupLocation="CenterScreen">
 
-    <Window.Resources>
-        <!-- Resources to be used in this "MainWindow"-->
-
-        <LinearGradientBrush x:Key="WindowBackgroundBrush" Opacity="1">
-            <GradientStop Offset="0" Color="Gray" />
-            <GradientStop Offset="3" Color="Gray" />
-        </LinearGradientBrush>
-
-
-        <Style x:Key="Test">
-            
-        </Style>
-    </Window.Resources>
-
     <Grid ShowGridLines="False">
-
         <!-- Define rows for vertical layout -->
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -91,23 +78,23 @@
                 <Button Content="Go" FontSize="50" Width="200" Height="80" 
                 Grid.Column="0" Grid.RowSpan="2" 
                 Click="GoButton_Click" HorizontalAlignment="Left" Margin="10,0,0,0">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="IsEnabled" Value="True" />
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="IsEnabled" Value="True" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsChecked, ElementName=PauseButtonToggle}" Value="True">
-                                        <Setter Property="IsEnabled" Value="False" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <ToggleButton Content="Pause/Play" Width="50" Height="40"
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <ToggleButton Content="Pause/Play" Width="50" Height="40"
                           x:Name="PauseButtonToggle"
                           Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                           Click="PauseButton_Click" />
-                    <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" />
-                    <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0" />
+                <Button Content="Stop" Width="50" Height="40" Click="StopButton_Click" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                <TextBlock x:Name="CurrentCue" Text="No Cue Selected" Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0" />
                 <TextBlock x:Name="CurrentTrack" Text="No Track Selected" Grid.Column="1" Grid.Row="1" VerticalAlignment="Top" Margin="10,0,0,0" />
             </Grid>
         </DockPanel>
@@ -221,4 +208,4 @@
         <Button Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Content="Settings" Width="100" />
         <ToggleButton Grid.Row="5" Grid.Column="0" x:Name="EditModeToggle" Content="Edit Mode" Width="100" Click="EditModeToggle_Click" />
     </Grid>
-</Window>
+</local:BaseWindow>
