@@ -20,6 +20,11 @@
             <GradientStop Offset="0" Color="Gray" />
             <GradientStop Offset="3" Color="Gray" />
         </LinearGradientBrush>
+
+
+        <Style x:Key="Test">
+            
+        </Style>
     </Window.Resources>
 
     <Grid ShowGridLines="False">
