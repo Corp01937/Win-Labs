@@ -36,11 +36,27 @@ namespace Win_Labs
             string selectedPath = OpenFolderDialog("Select a folder to create a playlist in.");
             if (!string.IsNullOrEmpty(selectedPath))
             {
-                playlistFolderPath = selectedPath;
-                Log.Info($"New playlist folder selected: {playlistFolderPath}");
-                OpenMainWindow(playlistFolderPath);
+                try
+                {
+                    Log.Info("Show loading window");
+                    var loadingWindow = new LoadingWindow();
+                    loadingWindow.Show();
+
+                    playlistFolderPath = selectedPath;
+                    Log.Info($"New playlist folder selected: {playlistFolderPath}");
+                    OpenMainWindow(playlistFolderPath);
+
+                    Log.Info("Close loading window");
+                    loadingWindow.Close();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to create new playlist: {ex.Message}");
+                    System.Windows.MessageBox.Show($"Error creating new playlist: {ex.Message}", "Create Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
+
 
         public void OpenExistingPlaylist()
         {
@@ -60,9 +76,26 @@ namespace Win_Labs
                     return;
                 }
 
-                OpenMainWindow(folderPath);
+                try
+                {
+                    Log.Info("Show loading window");
+                    var loadingWindow = new LoadingWindow();
+                    loadingWindow.Show();
+
+                    Log.Info("Open main window with the existing playlist");
+                    OpenMainWindow(folderPath);
+
+                    Log.Info("Close loading window");
+                    loadingWindow.Close();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to open existing playlist: {ex.Message}");
+                    System.Windows.MessageBox.Show($"Error opening existing playlist: {ex.Message}", "Open Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
+
 
         public void ImportPlaylist()
         {
@@ -91,9 +124,23 @@ namespace Win_Labs
         {
             try
             {
+                Log.Info("Show loading window");
+                var loadingWindow = new LoadingWindow();
+                loadingWindow.Show();
+
+                Log.Info("Close current main window");
+                _startupWindow.Close();
+
+                Log.Info("Import the playlist");
                 import.openZIP(playlistImportFilePath, playlistFolderPath);
                 Log.Info($"Playlist imported successfully from {playlistImportFilePath} to {import.importFolderPath}.");
-                OpenMainWindow(import.importFolderPath);
+
+                Log.Info("Open new main window with the new playlist");
+                var newMainWindow = new MainWindow(import.importFolderPath);
+                newMainWindow.Show();
+
+                Log.Info("Close loading window");
+                loadingWindow.Close();
             }
             catch (Exception ex)
             {
@@ -125,8 +172,16 @@ namespace Win_Labs
                 string destinationPath = folderDialog.SelectedPath;
                 try
                 {
+                    Log.Info("Show loading window");
+                    var loadingWindow = new LoadingWindow();
+                    loadingWindow.Show();
+
+                    Log.Info("Exporting playlist");
                     export.createZIP(_playlistFolderPath, destinationPath);
                     Log.Info($"Playlist exported successfully to {destinationPath}.");
+
+                    Log.Info("Close loading window");
+                    loadingWindow.Close();
                 }
                 catch (Exception ex)
                 {
@@ -144,5 +199,6 @@ namespace Win_Labs
                 Log.Warning("!!! No MainWindow instance found. !!! \n \n Please create a bug report and upload you log file to github. \n \n !!! No MainWindow instance found. !!! ");
             }
         }
+
     }
 }

@@ -504,50 +504,7 @@ namespace Win_Labs
         private void ImportMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Log.Info("Import menu item clicked.");
-            var openFileDialog = new System.Windows.Forms.OpenFileDialog
-            {
-                Filter = "Zip files (*.zip)|*.zip",
-                Title = "Select the playlist to import."
-            };
-
-            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string importPath = openFileDialog.FileName;
-                var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-                {
-                    Description = "Select the folder to import the playlist into."
-                };
-
-                if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    string exportPath = folderDialog.SelectedPath;
-                    try
-                    {
-                        // Show loading window
-                        var loadingWindow = new LoadingWindow();
-                        loadingWindow.Show();
-
-                        // Close current main window
-                        this.Close();
-
-                        // Import the playlist
-                        import.openZIP(importPath, exportPath);
-                        Log.Info($"Playlist imported successfully from {importPath}");
-
-                        // Open new main window with the new playlist
-                        var newMainWindow = new MainWindow(import.importFolderPath);
-                        newMainWindow.Show();
-
-                        // Close loading window
-                        loadingWindow.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error importing playlist: {ex.Message}");
-                        MessageBox.Show($"Failed to import playlist: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
+            playlistManager.ImportPlaylist();
         }
 
 
@@ -576,33 +533,7 @@ namespace Win_Labs
         private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Log.Info("Open menu item clicked.");
-            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-            {
-                Description = "Select the playlist folder to open."
-            };
-            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string selectedPath = folderDialog.SelectedPath;
-                try
-                {
-                    Log.Info("Show loading window");
-                    var loadingWindow = new LoadingWindow();
-                    loadingWindow.Show();
-                    Log.Info("Close current main window");
-                    this.Close();
-                    Log.Info("Open the new playlist");
-                    var newMainWindow = new MainWindow(selectedPath);
-                    newMainWindow.Show();
-                    Log.Info("Close loading window");
-                    loadingWindow.Close();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error opening playlist: {ex.Message} \n Exception output: ");
-                    Log.Exception(ex);
-                    MessageBox.Show($"Failed to open playlist: {ex.Message}", "Open Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            playlistManager.OpenExistingPlaylist();
         }
 
         private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
