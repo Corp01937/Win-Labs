@@ -1,13 +1,18 @@
-﻿using System.ComponentModel;
+﻿using Newtonsoft.Json;
+using System.ComponentModel;
 using System.IO;
 using System.Reflection.Metadata;
 using System.Windows;
 using System.Xml.Serialization;
+using Win_Labs.Properties;
+using System.ComponentModel;
+using System.Windows;
+using System.Windows.Input;
 
 
 namespace Win_Labs
 {
-    public partial class StartupWindow : Window
+    public partial class StartupWindow : BaseWindow
     {
         private PlaylistManager playlistManager;
         public string playlistFolderPath { get; private set; } = string.Empty;
@@ -18,6 +23,12 @@ namespace Win_Labs
             InitializeComponent();
             StartupWindowClosing = false;
             playlistManager = new PlaylistManager(this);
+        }
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //Makes entire Window dragable no matter what element is clicked
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+                this.DragMove();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -81,5 +92,12 @@ namespace Win_Labs
             MessageBox.Show("Hi there.", "!!EasterEgg!!", MessageBoxButton.OK, MessageBoxImage.Exclamation);
         }
 
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Settings button clicked.");
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
+        }
     }
 }

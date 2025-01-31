@@ -28,6 +28,7 @@
 	<None Remove="resources\Toolbar\Folder.jpg" />
 	<None Remove="resources\Toolbar\Help.png" />
 	<None Remove="resources\Win-Labs_SplashScreen.jpg" />
+	<None Remove="settings.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,9 +40,6 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Moq" Version="4.20.72" />
-	<PackageReference Include="MSTest.TestAdapter" Version="3.7.3" />
-	<PackageReference Include="MSTest.TestFramework" Version="3.7.3" />
 	<PackageReference Include="NAudio" Version="2.2.1" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
@@ -66,6 +64,9 @@
 	<Resource Include="resources\Toolbar\Folder.jpg" />
 	<Resource Include="resources\Toolbar\Help.png" />
 	<Resource Include="resources\Win-Labs_SplashScreen.jpg" />
+	<Resource Include="settings.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Resource>
   </ItemGroup>
 
   <ItemGroup>

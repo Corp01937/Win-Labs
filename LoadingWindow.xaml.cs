@@ -14,10 +14,7 @@ using System.Windows.Shapes;
 
 namespace Win_Labs
 {
-    /// <summary>
-    /// Interaction logic for LoadingWindow.xaml
-    /// </summary>
-    public partial class LoadingWindow : Window
+    public partial class LoadingWindow : BaseWindow
     {
         public LoadingWindow()
         {

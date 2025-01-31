@@ -15,11 +15,12 @@ using System.Reflection.Metadata;
 using System.DirectoryServices;
 using System.Windows.Documents;
 using System.Drawing.Interop;
+using Win_Labs.Properties;
 
 
 namespace Win_Labs
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : BaseWindow
     {
         private PlaylistManager playlistManager;
         private readonly string _playlistFolderPath;
