@@ -70,6 +70,17 @@ namespace Win_Labs
                                 if (result == MessageBoxResult.No)
                                 {
                                     Log.Info($"Skipped file: {entry.FullName}");
+                                    // Ask if this action should apply to all remaining duplicates
+                                    var applyToAll = MessageBox.Show(
+                                        "Apply this action to all remaining files?",
+                                        "Apply to All",
+                                        MessageBoxButton.YesNo,
+                                        MessageBoxImage.Question);
+
+                                    if (applyToAll == MessageBoxResult.Yes)
+                                    {
+                                        overwriteAll = true; // Set overwrite all flag
+                                    }
                                     continue; // Skip this file
                                 }
                                 else if (result == MessageBoxResult.Cancel)
@@ -93,9 +104,6 @@ namespace Win_Labs
                                 }
                             }
                         }
-
-
-
                         // Extract the file
                         entry.ExtractToFile(destinationPath, true); // Overwrite if allowed
                         Log.Info($"Extracted file: {entry.FullName}");
