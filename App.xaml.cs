@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Microsoft.VisualBasic.Logging;
+using System.Windows;
 
 namespace Win_Labs
 {
@@ -11,7 +12,7 @@ namespace Win_Labs
 
         private void LaunchDebug()
         {
-            if(Debug == false) { return; }
+            if (Debug == false) { return; }
         }
 
         private void Routing()
@@ -23,6 +24,7 @@ namespace Win_Labs
         {
             Log.Warning("Exception.Caught");
             MessageBox.Show("An unhandled exception just occurred: " + e.Exception.Message, "Exception Sample", MessageBoxButton.OK, MessageBoxImage.Error);
+            Log.Exception(e.Exception);
             e.Handled = true;
         }
 

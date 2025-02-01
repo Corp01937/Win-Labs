@@ -576,5 +576,13 @@ namespace Win_Labs
                 e.Cancel = true;
             }
         }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Settings button clicked");
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
+        }
     }
 }

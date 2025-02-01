@@ -3,11 +3,13 @@
         x:Class="Win_Labs.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
         Title="Settings Menu" 
         Height="200" Width="300"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        >
+    >
+
 
     <Grid Margin="1">
         <StackPanel>
