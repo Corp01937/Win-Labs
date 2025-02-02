@@ -24,8 +24,8 @@ namespace Win_Labs
         private string _cueName;
         private bool _renaming;
 
-        public static bool IsInitializing { get; set; }
-        public string PlaylistFolderPath { get; set; }
+        internal static bool IsInitializing { get; set; }
+        internal string PlaylistFolderPath = PlaylistManager.playlistFolderPath;
 
         private static readonly object _lock = new object();
 
@@ -70,7 +70,7 @@ namespace Win_Labs
 
         public Cue(string playlistFolderPath)
         {
-            PlaylistFolderPath = playlistFolderPath;
+            PlaylistFolderPath = PlaylistManager.playlistFolderPath;
         }
 
         public Cue() : this(string.Empty) { }

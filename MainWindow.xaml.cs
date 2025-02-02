@@ -19,6 +19,8 @@ using Win_Labs.Properties;
 using System.Reflection.Metadata.Ecma335;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
+using System.Runtime.InteropServices;
+using System.Printing;
 
 
 namespace Win_Labs
@@ -33,9 +35,10 @@ namespace Win_Labs
         public event RoutedEventHandler GotFocus;
         public MainWindow(string playlistFolderPath)
         {
+            PlaylistManager.playlistFolderPath = playlistFolderPath;
             InitializeComponent();
             playlistManager = new PlaylistManager(this);
-            _playlistFolderPath = playlistFolderPath;
+            _playlistFolderPath = PlaylistManager.playlistFolderPath;
             CueListView.ItemsSource = _cues;
             Initialize();
             Log.Info("Application started.");
@@ -56,12 +59,26 @@ namespace Win_Labs
             try
             {
                 _playlistFolderPath = import.destinationPath;
-                if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
+                if(_playlistFolderPath == null)
                 {
-                    Log.Info("No cues found. Creating a default cue.");
-                    var defaultCue = CueManager.CreateNewCue(0, _playlistFolderPath);
-                    CueManager.SaveCueToFile(defaultCue, _playlistFolderPath);
-                    Log.Info("Default cue created successfully.");
+                    _playlistFolderPath = PlaylistManager.playlistFolderPath;
+                    if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
+                    {
+                        Log.Info("No cues found. Creating a default cue.");
+                        var defaultCue = CueManager.CreateNewCue(0, _playlistFolderPath);
+                        CueManager.SaveCueToFile(defaultCue, _playlistFolderPath);
+                        Log.Info("Default cue created successfully.");
+                    }
+                }
+                else 
+                {
+                    if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
+                    {
+                        Log.Info("No cues found. Creating a default cue.");
+                        var defaultCue = CueManager.CreateNewCue(0, _playlistFolderPath);
+                        CueManager.SaveCueToFile(defaultCue, _playlistFolderPath);
+                        Log.Info("Default cue created successfully.");
+                    }
                 }
                 LoadCues();
             }
@@ -562,20 +579,16 @@ namespace Win_Labs
             }
         }
 
+        internal static void CloseMainWindow()
+        {
+            Log.Info("Closing Main Window.");
+            Application.Current.Dispatcher.Invoke(() => Application.Current.MainWindow.Close());
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
-
-            var result = MessageBox.Show("Save changes before closing?", "Confirm Exit", MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                SaveAllCues_Click(this, new RoutedEventArgs());
-            }
-            else if (result == MessageBoxResult.Cancel)
-            {
-                e.Cancel = true;
-            }
+            SaveAllCues_Click(this, new RoutedEventArgs());
         }
 
         private void Settings_Click(object sender, RoutedEventArgs e)

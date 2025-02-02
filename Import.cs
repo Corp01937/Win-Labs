@@ -7,23 +7,21 @@ namespace Win_Labs
 {
     internal class import
     {
-        public static string destinationPath { get; private set; }
-        public static string importFolderPath { get; private set; }
-        public static string openZIP(string importPath, string exportPath)
+        internal static string destinationPath { get; private set; }
+        internal static string importFolderPath { get; private set; }
+        public static string openZIP(string playlistImportFilePath, string playlistFolderPath)
         {
-            var folderName = Path.GetFileNameWithoutExtension(importPath);
-            destinationPath = Path.Combine(exportPath, folderName);
-            Log.Info("Opening file: " + importPath);
-
+            var folderName = Path.GetFileNameWithoutExtension(playlistImportFilePath);
+            destinationPath = Path.Combine(playlistFolderPath, folderName);
             try
             {
-                Log.Info($"Creating playlist at {exportPath}");
+                Log.Info($"Creating playlist at {playlistFolderPath}");
 
                 // Check if the export directory exists
-                if (!Directory.Exists(exportPath))
+                if (!Directory.Exists(playlistFolderPath))
                 {
-                    Directory.CreateDirectory(exportPath);
-                    Log.Info("Export path created: " + exportPath);
+                    Directory.CreateDirectory(playlistFolderPath);
+                    Log.Info("Export path created: " + playlistFolderPath);
                 }
 
                 // Flags for overwrite/skip all options
@@ -32,7 +30,8 @@ namespace Win_Labs
                 var CuePath = "";
 
                 // Extract files with overwrite handling
-                using (var archive = System.IO.Compression.ZipFile.OpenRead(importPath))
+                Log.Info("Opening file: " + playlistImportFilePath);
+                using (var archive = System.IO.Compression.ZipFile.OpenRead(playlistImportFilePath))
                 {
                     foreach (var entry in archive.Entries)
                     {
@@ -123,7 +122,7 @@ namespace Win_Labs
             {
                 Log.Exception(ex);
                 Log.Error($"Error extracting ZIP file: {ex.Message}");
-                MessageBox.Show($"Could not open file {importPath}. Please check the location or permissions.",
+                MessageBox.Show($"Could not open file {playlistImportFilePath}. Please check the location or permissions.",
                     "File Opening Error", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return null;
             }
