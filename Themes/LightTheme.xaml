@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
                     xmlns:themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Royale">
-    <!-- Dark theme styles -->
+    <!-- Light theme styles -->
     <SolidColorBrush x:Key="WindowBackgroundBrush" Color="LightGray"/>
     <SolidColorBrush x:Key="WindowForegroundBrush" Color="#444444"/>
     <SolidColorBrush x:Key="WindowBorderBrush" Color="DarkGray"/>
