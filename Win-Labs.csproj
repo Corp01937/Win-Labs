@@ -28,6 +28,7 @@
 	<None Remove="resources\Toolbar\Folder.jpg" />
 	<None Remove="resources\Toolbar\Help.png" />
 	<None Remove="resources\Win-Labs_SplashScreen.jpg" />
+	<None Remove="settings.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +64,9 @@
 	<Resource Include="resources\Toolbar\Folder.jpg" />
 	<Resource Include="resources\Toolbar\Help.png" />
 	<Resource Include="resources\Win-Labs_SplashScreen.jpg" />
+	<Resource Include="settings.json">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	</Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -106,6 +110,18 @@
 	  <Generator>SettingsSingleFileGenerator</Generator>
 	  <LastGenOutput>Settings.Designer.cs</LastGenOutput>
 	</None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Themes\DarkTheme.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Update="Themes\LightTheme.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Update="Themes\RainbowTheme.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
   </ItemGroup>
 
 </Project>

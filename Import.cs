@@ -11,7 +11,8 @@ namespace Win_Labs
         public static string importFolderPath { get; private set; }
         public static string openZIP(string importPath, string exportPath)
         {
-            destinationPath = exportPath;
+            var folderName = Path.GetFileNameWithoutExtension(importPath);
+            destinationPath = Path.Combine(exportPath, folderName);
             Log.Info("Opening file: " + importPath);
 
             try
@@ -28,18 +29,23 @@ namespace Win_Labs
                 // Flags for overwrite/skip all options
                 bool overwriteAll = false;
                 bool skipAll = false;
+                var CuePath = "";
 
                 // Extract files with overwrite handling
                 using (var archive = System.IO.Compression.ZipFile.OpenRead(importPath))
                 {
                     foreach (var entry in archive.Entries)
                     {
-                        destinationPath = Path.Combine(exportPath, entry.FullName);
+                        CuePath = Path.GetFullPath(Path.Combine(destinationPath, entry.FullName));
+                        string fullDestDirPath = Path.GetFullPath(destinationPath + Path.DirectorySeparatorChar);
+                        if (!CuePath.StartsWith(fullDestDirPath))
+                        {
+                            throw new InvalidOperationException("Entry is outside the target dir: " + CuePath);
+                        }
 
                         if (entry.FullName.EndsWith("/"))
                         {
                             Log.Info($"Skipped directory: {entry.FullName}");
-                            importFolderPath = Path.GetDirectoryName(destinationPath);
                             // Ensure the directory exists
                             var directoryPath = Path.GetDirectoryName(destinationPath);
                             if (directoryPath != null)
@@ -51,7 +57,7 @@ namespace Win_Labs
                         }
 
                         // Check if the file already exists
-                        if (File.Exists(destinationPath))
+                        if (File.Exists(CuePath))
                         {
                             if (skipAll)
                             {
@@ -70,6 +76,17 @@ namespace Win_Labs
                                 if (result == MessageBoxResult.No)
                                 {
                                     Log.Info($"Skipped file: {entry.FullName}");
+                                    // Ask if this action should apply to all remaining duplicates
+                                    var applyToAll = MessageBox.Show(
+                                        "Apply this action to all remaining files?",
+                                        "Apply to All",
+                                        MessageBoxButton.YesNo,
+                                        MessageBoxImage.Question);
+
+                                    if (applyToAll == MessageBoxResult.Yes)
+                                    {
+                                        overwriteAll = true; // Set overwrite all flag
+                                    }
                                     continue; // Skip this file
                                 }
                                 else if (result == MessageBoxResult.Cancel)
@@ -93,11 +110,8 @@ namespace Win_Labs
                                 }
                             }
                         }
-
-
-
                         // Extract the file
-                        entry.ExtractToFile(destinationPath, true); // Overwrite if allowed
+                        entry.ExtractToFile(CuePath, true); // Overwrite if allowed
                         Log.Info($"Extracted file: {entry.FullName}");
                     }
                 }

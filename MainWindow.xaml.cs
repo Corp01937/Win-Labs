@@ -13,20 +13,28 @@ using System.Xml.Serialization;
 using Microsoft.VisualBasic.Logging;
 using System.Reflection.Metadata;
 using System.DirectoryServices;
+using System.Windows.Documents;
+using System.Drawing.Interop;
+using Win_Labs.Properties;
+using System.Reflection.Metadata.Ecma335;
+using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 
 
 namespace Win_Labs
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : BaseWindow
     {
-        private readonly string _playlistFolderPath;
+        private PlaylistManager playlistManager;
+        private string _playlistFolderPath;
         private readonly ObservableCollection<Cue> _cues = new ObservableCollection<Cue>();
         private Cue _currentCue = new();
-        private string _currentCueFilePath;
+        public string _currentCueFilePath;
         public event RoutedEventHandler GotFocus;
         public MainWindow(string playlistFolderPath)
         {
             InitializeComponent();
+            playlistManager = new PlaylistManager(this);
             _playlistFolderPath = playlistFolderPath;
             CueListView.ItemsSource = _cues;
             Initialize();
@@ -35,6 +43,7 @@ namespace Win_Labs
 
         private void Initialize()
         {
+
             Log.Info("Initializing application...");
             BindCue(_currentCue);
             SetupCueChangeHandler();
@@ -46,6 +55,7 @@ namespace Win_Labs
         {
             try
             {
+                _playlistFolderPath = import.destinationPath;
                 if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
                 {
                     Log.Info("No cues found. Creating a default cue.");
@@ -150,7 +160,7 @@ namespace Win_Labs
             RefreshCueList();
         }
 
-        private void RefreshCueList()
+        public void RefreshCueList()
         {
             var selectedCue = CueListView.SelectedItem;
             CollectionViewSource.GetDefaultView(CueListView.ItemsSource).Refresh();
@@ -496,79 +506,24 @@ namespace Win_Labs
             Log.Info("Audio resources cleaned up.");
         }
 
+        private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Settings menu item clicked");
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
+        }
+
         private void ImportMenuItem_Click(object sender, RoutedEventArgs e)
         {
             Log.Info("Import menu item clicked.");
-            var openFileDialog = new System.Windows.Forms.OpenFileDialog
-            {
-                Filter = "Zip files (*.zip)|*.zip",
-                Title = "Select the playlist to import."
-            };
-
-            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string importPath = openFileDialog.FileName;
-                var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-                {
-                    Description = "Select the folder to import the playlist into."
-                };
-
-                if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    string exportPath = folderDialog.SelectedPath;
-                    try
-                    {
-                        // Show loading window
-                        var loadingWindow = new LoadingWindow();
-                        loadingWindow.Show();
-
-                        // Close current main window
-                        this.Close();
-
-                        // Import the playlist
-                        import.openZIP(importPath, exportPath);
-                        Log.Info($"Playlist imported successfully from {importPath}");
-
-                        // Open new main window with the new playlist
-                        var newMainWindow = new MainWindow(import.importFolderPath);
-                        newMainWindow.Show();
-
-                        // Close loading window
-                        loadingWindow.Close();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error($"Error importing playlist: {ex.Message}");
-                        MessageBox.Show($"Failed to import playlist: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-            }
+            playlistManager.ImportPlaylist();
         }
 
 
         private void ExportMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            Log.Info("Export menu item clicked.");
-            var folderDialog = new System.Windows.Forms.FolderBrowserDialog
-            {
-                Description = "Select a destination folder for the exported playlist."
-            };
-
-            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                string destinationPath = folderDialog.SelectedPath;
-                try
-                {
-                    export.createZIP(_playlistFolderPath, destinationPath);
-                    Log.Info($"Playlist exported successfully to {destinationPath}.");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Error exporting playlist: {ex.Message}");
-                    MessageBox.Show($"Failed to export playlist: {ex.Message}", "Export Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
-            RefreshCueList();
+            playlistManager.ExportPlaylist(_playlistFolderPath);
         }
 
 
@@ -588,7 +543,11 @@ namespace Win_Labs
             RefreshCueList();
         }
 
-
+        private void OpenMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Open menu item clicked.");
+            playlistManager.OpenExistingPlaylist();
+        }
 
         private void CloseMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -617,6 +576,14 @@ namespace Win_Labs
             {
                 e.Cancel = true;
             }
+        }
+
+        private void Settings_Click(object sender, RoutedEventArgs e)
+        {
+            Log.Info("Settings button clicked");
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
         }
     }
 }
