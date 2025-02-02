@@ -26,10 +26,10 @@ namespace Win_Labs
     public partial class MainWindow : BaseWindow
     {
         private PlaylistManager playlistManager;
-        private readonly string _playlistFolderPath;
+        private string _playlistFolderPath;
         private readonly ObservableCollection<Cue> _cues = new ObservableCollection<Cue>();
         private Cue _currentCue = new();
-        private string _currentCueFilePath;
+        public string _currentCueFilePath;
         public event RoutedEventHandler GotFocus;
         public MainWindow(string playlistFolderPath)
         {
@@ -55,6 +55,7 @@ namespace Win_Labs
         {
             try
             {
+                _playlistFolderPath = import.destinationPath;
                 if (!Directory.EnumerateFiles(_playlistFolderPath, "cue_*.json").Any())
                 {
                     Log.Info("No cues found. Creating a default cue.");

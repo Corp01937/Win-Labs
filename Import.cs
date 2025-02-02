@@ -11,7 +11,8 @@ namespace Win_Labs
         public static string importFolderPath { get; private set; }
         public static string openZIP(string importPath, string exportPath)
         {
-            destinationPath = exportPath;
+            var folderName = Path.GetFileNameWithoutExtension(importPath);
+            destinationPath = Path.Combine(exportPath, folderName);
             Log.Info("Opening file: " + importPath);
 
             try
@@ -28,18 +29,18 @@ namespace Win_Labs
                 // Flags for overwrite/skip all options
                 bool overwriteAll = false;
                 bool skipAll = false;
+                var CuePath = "";
 
                 // Extract files with overwrite handling
                 using (var archive = System.IO.Compression.ZipFile.OpenRead(importPath))
                 {
                     foreach (var entry in archive.Entries)
                     {
-                        destinationPath = Path.Combine(exportPath, entry.FullName);
+                        CuePath = Path.GetFullPath(Path.Combine(destinationPath + "\\" + entry.FullName));
 
                         if (entry.FullName.EndsWith("/"))
                         {
                             Log.Info($"Skipped directory: {entry.FullName}");
-                            importFolderPath = Path.GetDirectoryName(destinationPath);
                             // Ensure the directory exists
                             var directoryPath = Path.GetDirectoryName(destinationPath);
                             if (directoryPath != null)
@@ -51,7 +52,7 @@ namespace Win_Labs
                         }
 
                         // Check if the file already exists
-                        if (File.Exists(destinationPath))
+                        if (File.Exists(CuePath))
                         {
                             if (skipAll)
                             {
@@ -105,7 +106,7 @@ namespace Win_Labs
                             }
                         }
                         // Extract the file
-                        entry.ExtractToFile(destinationPath, true); // Overwrite if allowed
+                        entry.ExtractToFile(CuePath, true); // Overwrite if allowed
                         Log.Info($"Extracted file: {entry.FullName}");
                     }
                 }

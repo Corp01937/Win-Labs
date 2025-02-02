@@ -1,3 +1,4 @@
+using Microsoft.VisualBasic.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,15 +9,15 @@ namespace Win_Labs
 {
     public class PlaylistManager
     {
-        private string playlistFolderPath;
+        public static string playlistFolderPath;
         private string playlistImportFilePath;
         private Window _startupWindow;
 
         public PlaylistManager(Window startupWindow)
         {
             _startupWindow = startupWindow;
+            Log.Info($"PlaylistManager initialized with window: {_startupWindow.GetType().Name}");
         }
-
         private void OpenMainWindow(string playlistFolderPath)
         {
             var mainWindow = new MainWindow(playlistFolderPath);
@@ -57,7 +58,6 @@ namespace Win_Labs
             }
         }
 
-
         public void OpenExistingPlaylist()
         {
             var folderDialog = new FolderBrowserDialog
@@ -96,7 +96,6 @@ namespace Win_Labs
             }
         }
 
-
         public void ImportPlaylist()
         {
             var openFileDialog = new System.Windows.Forms.OpenFileDialog
@@ -128,12 +127,16 @@ namespace Win_Labs
                 var loadingWindow = new LoadingWindow();
                 loadingWindow.Show();
 
-                Log.Info("Close current main window");
-                _startupWindow.Close();
-
                 Log.Info("Import the playlist");
                 import.openZIP(playlistImportFilePath, playlistFolderPath);
                 Log.Info($"Playlist imported successfully from {playlistImportFilePath} to {import.importFolderPath}.");
+
+                Log.Info("Close Startup window");
+                if (_startupWindow is StartupWindow startupWindow)
+                {
+                    startupWindow.StartupWindowClosing = true;
+                    _startupWindow.Close();
+                }
 
                 Log.Info("Open new main window with the new playlist");
                 var newMainWindow = new MainWindow(import.importFolderPath);
@@ -145,9 +148,11 @@ namespace Win_Labs
             catch (Exception ex)
             {
                 Log.Error($"Failed to import playlist: {ex.Message}");
+                Log.Exception(ex);
                 System.Windows.MessageBox.Show($"Error importing playlist: {ex.Message}", "Import Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
 
         private string OpenFolderDialog(string description)
         {
@@ -199,6 +204,5 @@ namespace Win_Labs
                 Log.Warning("!!! No MainWindow instance found. !!! \n \n Please create a bug report and upload you log file to github. \n \n !!! No MainWindow instance found. !!! ");
             }
         }
-
     }
 }

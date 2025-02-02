@@ -1,4 +1,6 @@
+using NAudio.Dsp;
 using NAudio.Wave;
+using Newtonsoft.Json;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -226,16 +228,46 @@ namespace Win_Labs
             }
         }
 
+        public static string GetCurrentPlaylistPath()
+        {
+             
+
+            try
+            {
+                var json = File.ReadAllText(PlaylistManager.playlistFolderPath);
+                var cue = JsonConvert.DeserializeObject<Cue>(json);
+
+                if (cue != null && !string.IsNullOrEmpty(cue.PlaylistFolderPath))
+                {
+                    return cue.PlaylistFolderPath;
+                }
+                else
+                {
+                    Log.Warning("PlaylistFolderPath not found in cue file.");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+                return string.Empty;
+            }
+        }
+
 
         protected void OnPropertyChanged(string propertyName)
         {
+            if (string.IsNullOrEmpty(PlaylistFolderPath))
+            {
+                PlaylistFolderPath = GetCurrentPlaylistPath();
+            }
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             Log.Info($"Save.Called - Property changed: {propertyName}");
             if (!IsInitializing)
             {
                 Save();
             }
-
         }
         private void UpdateDuration()
         {
@@ -286,16 +318,21 @@ namespace Win_Labs
             CueManager.SaveCueToFile(this, PlaylistFolderPath);
             Log.Info("Saved successfully.");
         }
+        bool PlaylistFolderPathNull = false;
         private bool CheckForDuplicateCueFile(float newCueNumber)
         {
             if (Cue.IsInitializing == true) { return false; }
-            string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
-            if (!Directory.Exists(PlaylistFolderPath))
+            if(PlaylistFolderPath == null)
+            {
+                PlaylistFolderPathNull = true;
+            }
+            if (!Directory.Exists(PlaylistFolderPath) || PlaylistFolderPathNull)
             {
                 Log.Warning($"Playlist folder does not exist: {PlaylistFolderPath}");
                 return false;
             }
+            string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
 
             if (File.Exists(newFilePath))
             {
