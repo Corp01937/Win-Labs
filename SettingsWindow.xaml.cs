@@ -39,14 +39,33 @@ namespace Win_Labs
         {
             // Update settings
             var settings = AppSettingsManager.Settings;
-            settings.Theme = ((ComboBoxItem)ThemeComboBox.SelectedItem).Content.ToString();
-            settings.Language = ((ComboBoxItem)LanguageComboBox.SelectedItem).Content.ToString();
+            var selectedTheme = ThemeComboBox.SelectedItem as ComboBoxItem;
+            var selectedLanguage = LanguageComboBox.SelectedItem as ComboBoxItem;
+            
+            if (selectedTheme?.Content == null || selectedLanguage?.Content == null)
+            {
+                MessageBox.Show("Please select both theme and language", "Invalid Selection", 
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            
+            settings.Theme = selectedTheme.Content.ToString();
+            settings.Language = selectedLanguage.Content.ToString();
 
             // Save settings to file
             AppSettingsManager.SaveSettings();
 
             // Apply the selected theme
-            ThemeManager.ApplyTheme(settings.Theme);
+            try
+            {
+                ThemeManager.ApplyTheme(settings.Theme);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Failed to apply theme: {ex.Message}");
+                MessageBox.Show("Failed to apply theme. Settings were saved.", 
+                    "Theme Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
 
             // Close the settings window
             this.Close();

@@ -7,15 +7,29 @@ namespace Win_Labs
     {
         public static void ApplyTheme(string themeName)
         {
+            if (string.IsNullOrWhiteSpace(themeName))
+            {
+                throw new ArgumentException("Theme name cannot be null or empty", nameof(themeName));
+            }
+
+            var themePath = $"/Themes/{themeName}Theme.xaml";
+    
             // Clear existing merged dictionaries
             Application.Current.Resources.MergedDictionaries.Clear();
-
+ 
             // Load the selected theme
-            var themeDict = new ResourceDictionary
+            try
             {
-                Source = new Uri($"/Themes/{themeName}Theme.xaml", UriKind.Relative)
-            };
-            Application.Current.Resources.MergedDictionaries.Add(themeDict);
+                var themeDict = new ResourceDictionary
+                {
+                    Source = new Uri(themePath, UriKind.Relative)
+                };
+                Application.Current.Resources.MergedDictionaries.Add(themeDict);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to load theme: {themePath}", ex);
+            }
         }
     }
 }
