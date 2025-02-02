@@ -36,7 +36,12 @@ namespace Win_Labs
                 {
                     foreach (var entry in archive.Entries)
                     {
-                        CuePath = Path.GetFullPath(Path.Combine(destinationPath + "\\" + entry.FullName));
+                        CuePath = Path.GetFullPath(Path.Combine(destinationPath, entry.FullName));
+                        string fullDestDirPath = Path.GetFullPath(destinationPath + Path.DirectorySeparatorChar);
+                        if (!CuePath.StartsWith(fullDestDirPath))
+                        {
+                            throw new InvalidOperationException("Entry is outside the target dir: " + CuePath);
+                        }
 
                         if (entry.FullName.EndsWith("/"))
                         {
