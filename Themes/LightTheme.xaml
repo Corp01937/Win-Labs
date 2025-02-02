@@ -253,7 +253,7 @@
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource WindowBorderBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="false">
-                            <Setter Property="Background" TargetName="border" Value="{StaticResource WindwowBackroundBrush}"/>
+                            <Setter Property="Background" TargetName="border" Value="{StaticResource WindowBackgroundBrush}"/>
                             <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource WindowBorderBrush}"/>
                             <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource WindowForegroundBrush}"/>
                         </Trigger>
