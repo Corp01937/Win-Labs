@@ -9,7 +9,7 @@ namespace Win_Labs
 {
     public class PlaylistManager
     {
-        public static string playlistFolderPath;
+        internal static string playlistFolderPath;
         private string playlistImportFilePath;
         private Window _startupWindow;
 

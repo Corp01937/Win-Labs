@@ -230,13 +230,16 @@ namespace Win_Labs
 
         public static string GetCurrentPlaylistPath()
         {
-             
-
             try
             {
-                var json = File.ReadAllText(PlaylistManager.playlistFolderPath);
+                string normalizedPath = Path.GetFullPath(PlaylistManager.playlistFolderPath);
+                if (!normalizedPath.StartsWith(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory)))
+                {
+                    Log.Warning("Attempted path traversal detected.");
+                    return string.Empty;
+                }
+                var json = File.ReadAllText(normalizedPath);
                 var cue = JsonConvert.DeserializeObject<Cue>(json);
-
                 if (cue != null && !string.IsNullOrEmpty(cue.PlaylistFolderPath))
                 {
                     return cue.PlaylistFolderPath;
@@ -254,12 +257,14 @@ namespace Win_Labs
             }
         }
 
-
+        private static bool isResolvingPath = false;
         protected void OnPropertyChanged(string propertyName)
         {
-            if (string.IsNullOrEmpty(PlaylistFolderPath))
+            if (!isResolvingPath && string.IsNullOrEmpty(PlaylistFolderPath))
             {
+                isResolvingPath = true;
                 PlaylistFolderPath = GetCurrentPlaylistPath();
+                isResolvingPath = false;
             }
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -323,7 +328,7 @@ namespace Win_Labs
         {
             if (Cue.IsInitializing == true) { return false; }
 
-            if(PlaylistFolderPath == null)
+            if (PlaylistFolderPath == null)
             {
                 PlaylistFolderPathNull = true;
             }
@@ -332,7 +337,13 @@ namespace Win_Labs
                 Log.Warning($"Playlist folder does not exist: {PlaylistFolderPath}");
                 return false;
             }
-            string newFilePath = Path.Combine(PlaylistFolderPath, $"cue_{newCueNumber}.json");
+            string normalizedPath = Path.GetFullPath(PlaylistFolderPath);
+            if (!normalizedPath.StartsWith(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory)))
+            {
+                Log.Warning("Attempted path traversal detected in playlist folder path.");
+                return false;
+            }
+            string newFilePath = Path.Combine(normalizedPath, $"cue_{newCueNumber}.json");
 
             if (File.Exists(newFilePath))
             {
