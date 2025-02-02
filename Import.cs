@@ -47,7 +47,7 @@ namespace Win_Labs
                         {
                             Log.Info($"Skipped directory: {entry.FullName}");
                             // Ensure the directory exists
-                            var directoryPath = Path.GetDirectoryName(destinationPath);
+                            var directoryPath = Path.GetDirectoryName(CuePath);
                             if (directoryPath != null)
                             {
                                 Directory.CreateDirectory(directoryPath);
@@ -85,7 +85,7 @@ namespace Win_Labs
 
                                     if (applyToAll == MessageBoxResult.Yes)
                                     {
-                                        overwriteAll = true; // Set overwrite all flag
+                                        skipAll = true; // Set skip all flag
                                     }
                                     continue; // Skip this file
                                 }
@@ -111,7 +111,7 @@ namespace Win_Labs
                             }
                         }
                         // Extract the file
-                        entry.ExtractToFile(CuePath, true); // Overwrite if allowed
+                        entry.ExtractToFile(CuePath, overwriteAll); // Respect user's choice
                         Log.Info($"Extracted file: {entry.FullName}");
                     }
                 }

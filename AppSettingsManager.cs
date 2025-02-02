@@ -32,9 +32,22 @@ namespace Win_Labs
             }
             else
             {
-                var json = File.ReadAllText(SettingsFilePath);
-                _settings = JsonConvert.DeserializeObject<AppSettings>(json);
-                Log.Info("Settings loaded from file: " + SettingsFilePath);
+                try
+                {
+                    var json = File.ReadAllText(SettingsFilePath);
+                    _settings = JsonConvert.DeserializeObject<AppSettings>(json);
+                    if (_settings == null)
+                    {
+                        throw new JsonSerializationException("Settings could not be deserialised");
+                    }
+                    Log.Info("Settings loaded from file: " + SettingsFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to load settings: {ex.Message}");
+                    _settings = new AppSettings();
+                    SaveSettings();
+                }
             }
         }
 
