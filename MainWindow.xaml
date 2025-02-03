@@ -204,7 +204,7 @@
         </StackPanel>
 
         <!-- Footer -->
-        <TextBlock Grid.Row="5" Grid.Column="0" Text="GitHub: https://github.com/Corp01937/Win-Labs" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="GitHub: https://github.com/Corp-i1/Win-Labs" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" />
         <Button Grid.Row="5" Grid.Column="0" HorizontalAlignment="Right" Content="Settings" Height="24" Width="100" Click="Settings_Click"/>
         <ToggleButton Grid.Row="5" Grid.Column="0" x:Name="EditModeToggle" Content="Edit Mode" Height="24"  Width="100" Click="EditModeToggle_Click" />
     </Grid>
