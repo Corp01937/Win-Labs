@@ -58,7 +58,7 @@
                             <MenuItem Header="Import" Click="ImportMenuItem_Click" />
                         </MenuItem>
                     </Menu>
-                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" />
+                    <TextBlock Text="Win-Labs" VerticalAlignment="Center" HorizontalAlignment="Center" FontWeight="Bold" Foreground="LightGray"/>
                 </Grid>
             </Border>
         </DockPanel>
