@@ -106,7 +106,6 @@ namespace Win_Labs
                 Log.Error($"Failed to open existing playlist: {ex.Message}");
                 System.Windows.MessageBox.Show($"Error opening existing playlist: {ex.Message}", "Open Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-            
         }
 
         public void ImportPlaylist()
@@ -132,7 +131,6 @@ namespace Win_Labs
                     TryImportPlaylist();
                 }
             }
-
         }
 
         private void TryImportPlaylist()
