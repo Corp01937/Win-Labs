@@ -455,6 +455,20 @@ namespace Win_Labs
                 _activeWaveOuts.Add(newWaveOut);
 
                 CurrentTrack.Text = $"Playing: {selectedCue.FileName}";
+
+                // Move to the next cue in the list
+                int currentIndex = CueListView.Items.IndexOf(selectedCue);
+                if (currentIndex + 1 < CueListView.Items.Count)
+                {
+                    CueListView.SelectedIndex = currentIndex + 1;
+                }
+                else
+                {
+                    Log.Info("Reached the end of the cue list.");
+                    // Optionally, reset to the first item
+                    // CueListView.SelectedIndex = 0;
+                }
+
             }
             catch (Exception ex)
             {
