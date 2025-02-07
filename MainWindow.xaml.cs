@@ -381,18 +381,23 @@ namespace Win_Labs
                 return;
             }
 
+            PlayCue(selectedCue);
+        }
+
+        private void PlayCue(Cue cue)
+        {
             try
             {
                 // Ensure TargetFile exists
-                if (!File.Exists(selectedCue.TargetFile))
+                if (!File.Exists(cue.TargetFile))
                 {
-                    Log.Error($"Target file does not exist: {selectedCue.TargetFile}");
-                    MessageBox.Show($"The file {selectedCue.TargetFile} could not be found.", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Log.Error($"Target file does not exist: {cue.TargetFile}");
+                    MessageBox.Show($"The file {cue.TargetFile} could not be found.", "File Not Found", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
                 // Initialize playback components
-                var audioReader = new AudioFileReader(selectedCue.TargetFile);
+                var audioReader = new AudioFileReader(cue.TargetFile);
                 var newWaveOut = new WaveOutEvent();
                 newWaveOut.Init(audioReader);
 
@@ -407,15 +412,15 @@ namespace Win_Labs
                 bool isDurationValid = false;
                 TimeSpan limitDuration = TimeSpan.Zero;
 
-                if (!string.IsNullOrWhiteSpace(selectedCue.Duration))
+                if (!string.IsNullOrWhiteSpace(cue.Duration))
                 {
                     // Try to parse duration as a TimeSpan (e.g., "mm:ss.ff")
-                    if (TimeSpan.TryParseExact(selectedCue.Duration, @"mm\:ss\.ff", null, out limitDuration) && limitDuration.TotalMilliseconds > 0)
+                    if (TimeSpan.TryParseExact(cue.Duration, @"mm\:ss\.ff", null, out limitDuration) && limitDuration.TotalMilliseconds > 0)
                     {
                         isDurationValid = true;
                     }
                     // If not, try to parse as plain milliseconds (e.g., "120000")
-                    else if (double.TryParse(selectedCue.Duration, out double durationInMilliseconds) && durationInMilliseconds > 0)
+                    else if (double.TryParse(cue.Duration, out double durationInMilliseconds) && durationInMilliseconds > 0)
                     {
                         limitDuration = TimeSpan.FromMilliseconds(durationInMilliseconds);
                         isDurationValid = true;
@@ -424,7 +429,7 @@ namespace Win_Labs
 
                 if (isDurationValid)
                 {
-                    Log.Info($"Playing Cue {selectedCue.CueNumber}: {selectedCue.TargetFile} for {limitDuration.TotalSeconds} seconds.");
+                    Log.Info($"Playing Cue {cue.CueNumber}: {cue.TargetFile} for {limitDuration.TotalSeconds} seconds.");
 
                     var playbackTimer = new System.Timers.Timer(limitDuration.TotalMilliseconds)
                     {
@@ -436,6 +441,7 @@ namespace Win_Labs
                         playbackTimer.Stop();
                         playbackTimer.Dispose();
                         Dispatcher.Invoke(() => StopPlayback(newWaveOut));
+                        Dispatcher.Invoke(() => PlayNextCueIfAutoFollow(cue));
                     };
 
                     _playbackTimers[newWaveOut] = playbackTimer;
@@ -443,21 +449,21 @@ namespace Win_Labs
                 }
                 else
                 {
-                    Log.Warning($"Invalid or zero duration specified for cue {selectedCue.CueNumber}. Playing the full track.");
-                    MessageBox.Show($"The duration '{selectedCue.Duration}' is invalid. The full track will be played.",
+                    Log.Warning($"Invalid or zero duration specified for cue {cue.CueNumber}. Playing the full track.");
+                    MessageBox.Show($"The duration '{cue.Duration}' is invalid. The full track will be played.",
                                     "Invalid Duration", MessageBoxButton.OK, MessageBoxImage.Warning);
 
                     // Set the duration back to the audio file's length
-                    selectedCue.Duration = audioReader.TotalTime.ToString(@"mm\:ss\.ff");
+                    cue.Duration = audioReader.TotalTime.ToString(@"mm\:ss\.ff");
                 }
 
                 newWaveOut.Play();
                 _activeWaveOuts.Add(newWaveOut);
 
-                CurrentTrack.Text = $"Playing: {selectedCue.FileName}";
+                CurrentTrack.Text = $"Playing: {cue.FileName}";
 
                 // Move to the next cue in the list
-                int currentIndex = CueListView.Items.IndexOf(selectedCue);
+                int currentIndex = CueListView.Items.IndexOf(cue);
                 if (currentIndex + 1 < CueListView.Items.Count)
                 {
                     CueListView.SelectedIndex = currentIndex + 1;
@@ -476,6 +482,20 @@ namespace Win_Labs
                 MessageBox.Show($"Failed to play the cue: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void PlayNextCueIfAutoFollow(Cue currentCue)
+        {
+            int currentIndex = _cues.IndexOf(currentCue);
+            if (currentIndex + 1 < _cues.Count)
+            {
+                Cue nextCue = _cues[currentIndex + 1];
+                if (nextCue.AutoFollow)
+                {
+                    PlayCue(nextCue);
+                }
+            }
+        }
+
 
 
 
