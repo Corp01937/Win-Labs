@@ -33,10 +33,13 @@ namespace Win_Labs
         private Cue _currentCue = new();
         public string _currentCueFilePath;
         public event RoutedEventHandler GotFocus;
+        private InspectorWindow _inspectorWindow;
+
         public MainWindow(string playlistFolderPath)
         {
             PlaylistManager.playlistFolderPath = playlistFolderPath;
             InitializeComponent();
+            DataContext = this;
             playlistManager = new PlaylistManager(this);
             _playlistFolderPath = PlaylistManager.playlistFolderPath;
             CueListView.ItemsSource = _cues;
@@ -106,25 +109,19 @@ namespace Win_Labs
             Cue.IsInitializing = false;
         }
 
-        private void BindCue(Cue cue)
-        {
-            DataContext = cue;
-            _currentCue = cue;
-        }
-
         private void SetupCueChangeHandler()
         {
             _currentCue.PropertyChanged += OnCurrentCuePropertyChanged;
         }
 
-        private void Duration_GotFocus(object sender, RoutedEventArgs e)
+        internal void Duration_GotFocus(object sender, RoutedEventArgs e)
         {
             if (sender is TextBox textBox && textBox.DataContext is Cue cue)
             {
                 cue.Duration_GotFocus();
             }
         }
-        private void Duration_LostFocus(object sender, RoutedEventArgs e)
+        internal void Duration_LostFocus(object sender, RoutedEventArgs e)
         {
             if (sender is TextBox textBox && textBox.DataContext is Cue cue)
             {
@@ -151,8 +148,86 @@ namespace Win_Labs
             if (CueListView.SelectedItem is Cue selectedCue)
             {
                 BindCue(selectedCue);
+                ShowInspector();
+            }
+            else
+            {
+                HideInspector();
             }
             RefreshCueList();
+        }
+
+        private void BindCue(Cue cue)
+        {
+            DataContext = cue;
+            _currentCue = cue;
+
+            // Update the DataContext of the InspectorWindow if it is open
+            if (_inspectorWindow != null)
+            {
+                _inspectorWindow.DataContext = cue;
+            }
+        }
+
+
+        private void ShowInspector()
+        {
+            if (_inspectorWindow != null)
+            {
+                _inspectorWindow.DataContext = _currentCue;
+            }
+        }
+
+        private void HideInspector()
+        {
+            if (_inspectorWindow != null)
+            {
+                _inspectorWindow.DataContext = null;
+            }
+        }
+
+        private void Pop_Out_Inspector_Click(object sender, RoutedEventArgs e)
+        {
+            if (_inspectorWindow == null)
+            {
+                _inspectorWindow = new InspectorWindow
+                {
+                    Owner = this,
+                    DataContext = _currentCue
+                };
+                _inspectorWindow.Closed += (s, args) =>
+                {
+                    _inspectorWindow = null;
+                    IsInspectorVisible = true; // Show Inspector when window is closed
+                };
+                _inspectorWindow.Show();
+                IsInspectorVisible = false; // Hide Inspector in MainWindow
+            }
+            else
+            {
+                _inspectorWindow.Focus();
+            }
+        }
+
+        private bool _isInspectorVisible = true;
+        public bool IsInspectorVisible
+        {
+            get => _isInspectorVisible;
+            set
+            {
+                if (_isInspectorVisible != value)
+                {
+                    _isInspectorVisible = value;
+                    OnPropertyChanged(nameof(IsInspectorVisible));
+                }
+            }
+        }
+
+        // Implement INotifyPropertyChanged
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void CreateNewCue_Click(object sender, RoutedEventArgs e)
@@ -229,7 +304,7 @@ namespace Win_Labs
             RefreshCueList();
         }
 
-        private void SelectTargetFile_Click(object sender, RoutedEventArgs e)
+        internal void SelectTargetFile_Click(object sender, RoutedEventArgs e)
         {
             Log.Info("Selecting target file...");
             var openFileDialog = new Microsoft.Win32.OpenFileDialog
